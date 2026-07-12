@@ -1,7 +1,7 @@
 {
-  "name": "erph-moe",
+  "name": "malp",
   "version": "1.0.0",
-  "description": "AI-powered lesson plan generator for Malaysian primary school English teachers. Generates Daily, Weekly, and Monthly lesson plans aligned with the DSKP curriculum.",
+  "description": "MALP - Malaysian AI Lesson Planner: Generate Daily, Weekly, and Monthly English lesson plans aligned with the MOE DSKP curriculum, Scheme of Work, and standard textbooks (Superminds, Get Smart Plus, English Plus 1, Academy Stars) for Years 1-6.",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,15 +11,26 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\""
   },
   "keywords": [
-    "education",
     "malaysia",
+    "education",
     "dskp",
     "lesson-plans",
     "erph",
-    "english-teaching"
+    "english-teaching",
+    "kpm",
+    "sow",
+    "primary-school"
   ],
   "author": "",
   "license": "MIT",
+  "homepage": "https://github.com/heat-a11y/erph-moe#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heat-a11y/erph-moe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/heat-a11y/erph-moe/issues"
+  },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.11",
     "@radix-ui/react-avatar": "^1.1.0",
