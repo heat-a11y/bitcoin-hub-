@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -256,9 +257,9 @@
               <span class="text-lg">&#x26A1;</span> <span x-text="generating ? 'Generating\u2026' : 'Generate Full Week'"></span>
             </button>
             <span class="text-xs text-slate-400" x-text="'From ' + Object.keys(slotsByDay).length + ' day(s) · ' + slotsForWeek.length + ' slot(s)'"></span>
-            <button @click="exportAllPlans()" class="inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-2 text-xs font-medium text-slate-500 shadow-sm transition-colors hover:bg-slate-50">
+            <button @click="exportAllPDF()" class="inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-2 text-xs font-medium text-slate-500 shadow-sm transition-colors hover:bg-slate-50">
               <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-              Export All
+              Export All PDF
             </button>
           </div>
         </div>
@@ -409,9 +410,9 @@
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"/></svg>
                     Copy
                   </button>
-                  <button @click.stop="printPlan(plan)" class="inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z"/></svg>
-                    Print / PDF
+                  <button @click.stop="downloadPlanPDF(plan)" class="inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                    Download PDF
                   </button>
                 </div>
               </div>
@@ -1121,78 +1122,69 @@ document.addEventListener('alpine:init', () => {
       navigator.clipboard.writeText(lines.join('\n'))
     },
 
-    printPlan(plan) {
-      const w = window.open('', '_blank')
-      if (!w) return
-      w.document.write(`
-        <html><head><title>${plan.title}</title>
-        <style>
-          @page { margin: 1.5cm; size: A4; }
-          * { box-sizing: border-box; margin: 0; padding: 0; }
-          body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; padding: 0; max-width: 210mm; margin: 0 auto; color: #1e293b; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .header { border-bottom: 3px solid #4f46e5; padding-bottom: .75rem; margin-bottom: 1.25rem; }
-          .header h1 { font-size: 1.3rem; font-weight: 700; color: #1e293b; }
-          .header .meta { font-size: .8rem; color: #64748b; margin-top: .25rem; }
-          .header .badges { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .5rem; }
-          .badge { display: inline-block; background: #eef2ff; color: #4f46e5; border-radius: 9999px; padding: .125rem .625rem; font-size: .7rem; font-weight: 600; }
-          .section { margin-top: 1.25rem; }
-          .section h2 { font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #4f46e5; border-bottom: 2px solid #e2e8f0; padding-bottom: .25rem; margin-bottom: .5rem; }
-          .section ul { list-style: none; padding: 0; }
-          .section li { padding: .2rem 0; font-size: .8rem; position: relative; padding-left: 1rem; }
-          .section li::before { content: ''; position: absolute; left: 0; top: .6rem; width: 5px; height: 5px; border-radius: 50%; background: #4f46e5; }
-          .activity { border: 1px solid #e2e8f0; border-radius: .5rem; padding: .65rem .75rem; margin-bottom: .6rem; break-inside: avoid; }
-          .activity h3 { font-size: .8rem; font-weight: 600; color: #4f46e5; margin-bottom: .2rem; }
-          .activity .dur { font-size: .7rem; color: #94a3b8; font-weight: 400; }
-          .activity p { font-size: .78rem; color: #475569; }
-          .activity .roles { display: flex; gap: 1rem; margin-top: .35rem; font-size: .7rem; color: #64748b; }
-          .activity .roles span { font-weight: 600; color: #334155; }
-          .tags { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .25rem; }
-          .tag { display: inline-block; background: #f1f5f9; border-radius: 9999px; padding: .125rem .55rem; font-size: .72rem; color: #475569; }
-          .reflection { margin-top: 1.25rem; border-top: 2px solid #e2e8f0; padding-top: .75rem; }
-          .reflection h2 { font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #4f46e5; margin-bottom: .35rem; }
-          .reflection p { font-size: .8rem; color: #475569; font-style: italic; white-space: pre-wrap; }
-          .footer { margin-top: 1.5rem; padding-top: .75rem; border-top: 2px solid #e2e8f0; font-size: .68rem; color: #94a3b8; text-align: center; }
-          @media print {
-            body { padding: 0; }
-            .no-print { display: none !important; }
-          }
-        </style>
-        </head><body>
-        <div class="header">
-          <h1>${this.escapeHtml(plan.title)}</h1>
-          <div class="meta">${plan.date}${plan.daySlot ? ' · ' + plan.daySlot : ''}${plan.slotTime ? ' · ' + plan.slotTime : ''} · ${plan.yearGroup} · ${plan.duration} min</div>
-          <div class="badges">
-            <span class="badge">${plan.theme}</span>
-            <span class="badge">${plan.topic || '—'}</span>
-            ${plan.skillArea.map(s => '<span class="badge">' + s + '</span>').join('')}
+    buildPDFHtml(plan) {
+      return `
+        <div style="font-family:'Segoe UI',system-ui,-apple-system,sans-serif;max-width:210mm;margin:0 auto;color:#1e293b;line-height:1.5;padding:1.5cm">
+          <div style="border-bottom:3px solid #4f46e5;padding-bottom:.75rem;margin-bottom:1.25rem">
+            <h1 style="font-size:1.3rem;font-weight:700;color:#1e293b;margin:0">${this.escapeHtml(plan.title)}</h1>
+            <div style="font-size:.8rem;color:#64748b;margin-top:.25rem">${plan.date}${plan.daySlot ? ' · ' + plan.daySlot : ''}${plan.slotTime ? ' · ' + plan.slotTime : ''} · ${plan.yearGroup} · ${plan.duration} min</div>
+            <div style="display:flex;flex-wrap:wrap;gap:.375rem;margin-top:.5rem">
+              <span style="background:#eef2ff;color:#4f46e5;border-radius:9999px;padding:.125rem .625rem;font-size:.7rem;font-weight:600">${plan.theme}</span>
+              <span style="background:#eef2ff;color:#4f46e5;border-radius:9999px;padding:.125rem .625rem;font-size:.7rem;font-weight:600">${plan.topic || '—'}</span>
+              ${plan.skillArea.map(s => '<span style="background:#eef2ff;color:#4f46e5;border-radius:9999px;padding:.125rem .625rem;font-size:.7rem;font-weight:600">' + s + '</span>').join('')}
+            </div>
           </div>
-        </div>
+          <div style="margin-top:1.25rem">
+            <h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Learning Objectives</h2>
+            <ul style="list-style:none;padding:0">${plan.learningObjectives.map(o => '<li style="padding:.2rem 0;font-size:.8rem;padding-left:1rem;position:relative">' + this.escapeHtml(o) + '</li>').join('')}</ul>
+          </div>
+          ${plan.song ? '<div style="margin-top:1.25rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Theme Song</h2><p style="font-size:.8rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:.5rem;padding:.65rem .75rem;white-space:pre-wrap">' + this.escapeHtml(plan.song.title) + '\n' + this.escapeHtml(plan.song.lyrics) + '</p></div>' : ''}
+          <div style="margin-top:1.25rem">
+            <h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Activities</h2>
+            ${plan.activities.map(a => '<div style="border:1px solid #e2e8f0;border-radius:.5rem;padding:.65rem .75rem;margin-bottom:.6rem;break-inside:avoid"><h3 style="font-size:.8rem;font-weight:600;color:#4f46e5;margin-bottom:.2rem">' + this.escapeHtml(a.phase) + ' <span style="font-size:.7rem;color:#94a3b8;font-weight:400">— ' + a.duration + ' min</span></h3><p style="font-size:.78rem;color:#475569;margin:0">' + this.escapeHtml(a.description) + '</p><div style="display:flex;gap:1rem;margin-top:.35rem;font-size:.7rem;color:#64748b"><div><span style="font-weight:600;color:#334155">Teacher:</span> ' + this.escapeHtml(a.teacherRole) + '</div><div><span style="font-weight:600;color:#334155">Students:</span> ' + this.escapeHtml(a.studentRole) + '</div></div></div>').join('')}
+          </div>
+          ${plan.teachingAids.length ? '<div style="margin-top:1.25rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Teaching Aids</h2><div style="display:flex;flex-wrap:wrap;gap:.375rem">' + plan.teachingAids.map(a => '<span style="background:#f1f5f9;border-radius:9999px;padding:.125rem .55rem;font-size:.72rem;color:#475569">' + this.escapeHtml(a) + '</span>').join('') + '</div></div>' : ''}
+          ${plan.moralValues.length ? '<div style="margin-top:1.25rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Moral Values</h2><div style="display:flex;flex-wrap:wrap;gap:.375rem">' + plan.moralValues.map(v => '<span style="background:#f1f5f9;border-radius:9999px;padding:.125rem .55rem;font-size:.72rem;color:#475569">' + this.escapeHtml(v) + '</span>').join('') + '</div></div>' : ''}
+          ${plan.cce.length ? '<div style="margin-top:1.25rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">CCE</h2><div style="display:flex;flex-wrap:wrap;gap:.375rem">' + plan.cce.map(c => '<span style="background:#f1f5f9;border-radius:9999px;padding:.125rem .55rem;font-size:.72rem;color:#475569">' + this.escapeHtml(c) + '</span>').join('') + '</div></div>' : ''}
+          ${plan.reflection ? '<div style="margin-top:1.25rem;border-top:2px solid #e2e8f0;padding-top:.75rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;margin-bottom:.35rem">Teacher\u2019s Reflection</h2><p style="font-size:.8rem;color:#475569;font-style:italic;white-space:pre-wrap">' + this.escapeHtml(plan.reflection) + '</p></div>' : ''}
+          <div style="margin-top:1.5rem;padding-top:.75rem;border-top:2px solid #e2e8f0;font-size:.68rem;color:#94a3b8;text-align:center">Generated by MALP — Malaysian Lesson Planner</div>
+        </div>`
+    },
 
-        <div class="section">
-          <h2>Learning Objectives</h2>
-          <ul>${plan.learningObjectives.map(o => '<li>' + this.escapeHtml(o) + '</li>').join('')}</ul>
-        </div>
+    async downloadPlanPDF(plan) {
+      const el = document.createElement('div')
+      el.innerHTML = this.buildPDFHtml(plan)
+      el.style.position = 'fixed'; el.style.left = '-9999px'; el.style.top = '0'
+      document.body.appendChild(el)
+      try {
+        await html2pdf().set({
+          margin: [0.5, 0.5, 0.5, 0.5],
+          filename: (plan.title || 'lesson-plan').replace(/[^a-z0-9]/gi, '_') + '.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        }).from(el).save()
+      } catch(e) { console.error(e) }
+      document.body.removeChild(el)
+    },
 
-        ${plan.song ? '<div class="section"><h2>Theme Song</h2><p style="font-size:.8rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:.5rem;padding:.65rem .75rem;white-space:pre-wrap">' + this.escapeHtml(plan.song.title) + '\n' + this.escapeHtml(plan.song.lyrics) + '</p></div>' : ''}
-
-        <div class="section">
-          <h2>Activities</h2>
-          ${plan.activities.map(a => '<div class="activity"><h3>' + this.escapeHtml(a.phase) + ' <span class="dur">— ' + a.duration + ' min</span></h3><p>' + this.escapeHtml(a.description) + '</p><div class="roles"><div><span>Teacher:</span> ' + this.escapeHtml(a.teacherRole) + '</div><div><span>Students:</span> ' + this.escapeHtml(a.studentRole) + '</div></div></div>').join('')}
-        </div>
-
-        ${plan.teachingAids.length ? '<div class="section"><h2>Teaching Aids</h2><div class="tags">' + plan.teachingAids.map(a => '<span class="tag">' + this.escapeHtml(a) + '</span>').join('') + '</div></div>' : ''}
-        ${plan.moralValues.length ? '<div class="section"><h2>Moral Values</h2><div class="tags">' + plan.moralValues.map(v => '<span class="tag">' + this.escapeHtml(v) + '</span>').join('') + '</div></div>' : ''}
-        ${plan.cce.length ? '<div class="section"><h2>CCE</h2><div class="tags">' + plan.cce.map(c => '<span class="tag">' + this.escapeHtml(c) + '</span>').join('') + '</div></div>' : ''}
-
-        ${plan.reflection ? '<div class="reflection"><h2>Teacher\u2019s Reflection</h2><p>' + this.escapeHtml(plan.reflection) + '</p></div>' : ''}
-
-        <div class="footer">Generated by MALP — Malaysian Lesson Planner &middot; erph-moe</div>
-        <p class="no-print" style="text-align:center;margin-top:1rem"><button onclick="window.print()" style="background:#4f46e5;color:#fff;border:none;border-radius:.5rem;padding:.5rem 1.5rem;font-size:.9rem;cursor:pointer">Print / Save PDF</button> <button onclick="window.close()" style="background:#e2e8f0;color:#475569;border:none;border-radius:.5rem;padding:.5rem 1.5rem;font-size:.9rem;cursor:pointer;margin-left:.5rem">Close</button></p>
-        </body></html>
-      `)
-      w.document.close()
-      w.focus()
-      setTimeout(() => { try { w.print() } catch(_) {} }, 500)
+    exportAllPDF() {
+      if (!this.lessonPlans.length) return
+      const el = document.createElement('div')
+      el.innerHTML = this.lessonPlans.map(p => this.buildPDFHtml(p)).join('<div style="page-break-after:always"></div>')
+      el.style.position = 'fixed'; el.style.left = '-9999px'; el.style.top = '0'
+      document.body.appendChild(el)
+      html2pdf().set({
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: 'MALP_All_Lesson_Plans.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+      }).from(el).save().then(() => {
+        document.body.removeChild(el)
+      }).catch(() => {
+        document.body.removeChild(el)
+      })
     },
 
     escapeHtml(str) {
