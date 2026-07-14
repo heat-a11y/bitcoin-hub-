@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-bitcoin: #F7931A;
+  --color-bitcoin-light: #FBAF4A;
+  --color-bitcoin-dark: #D97A0A;
+  --color-charcoal: #121212;
+  --color-crisp-slate: #1E293B;
+  --color-surface: #1A1F2E;
+  --color-muted: #94A3B8;
+  --color-foreground: #F1F5F9;
+  --color-border-subtle: rgba(247, 147, 26, 0.15);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --bg-body: #121212;
+  --bg-surface: #1A1F2E;
+  --bg-crisp: #1E293B;
+  --text-foreground: #F1F5F9;
+  --text-muted: #94A3B8;
+  --border-light: rgba(247, 147, 26, 0.15);
+  --ring-offset: #121212;
+  --fun-fact-bg: rgba(251, 191, 36, 0.06);
+  --fun-fact-border: rgba(251, 191, 36, 0.15);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-body: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-crisp: #E2E8F0;
+    --text-foreground: #0F172A;
+    --text-muted: #64748B;
+    --border-light: rgba(247, 147, 26, 0.2);
+    --ring-offset: #F8FAFC;
+    --fun-fact-bg: rgba(251, 191, 36, 0.08);
+    --fun-fact-border: rgba(251, 191, 36, 0.25);
+  }
+}
+
+body {
+  background: var(--bg-body);
+  color: var(--text-foreground);
+}
+
+/* ── Filter buttons ──────────────────────────────────── */
+
+.btn-filter {
+  @apply px-5 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-sm sm:text-base
+         tracking-wide cursor-pointer border-2 border-transparent
+         transition-all duration-200 ease-in-out
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bitcoin
+         focus-visible:ring-offset-2;
+  ring-offset-color: var(--ring-offset);
+}
+
+.btn-filter.active {
+  @apply bg-bitcoin text-charcoal border-bitcoin shadow-lg shadow-bitcoin/25;
+}
+
+.btn-filter.inactive {
+  background: var(--bg-crisp);
+  color: var(--text-muted);
+  border-color: var(--bg-crisp);
+}
+
+.btn-filter.inactive:hover {
+  border-color: rgba(247, 147, 26, 0.4);
+  background: rgba(247, 147, 26, 0.08);
+  color: var(--text-foreground);
+}
+
+/* ── Repo cards ──────────────────────────────────────── */
+
+.repo-card {
+  background: var(--bg-surface);
+  @apply rounded-xl p-5 sm:p-6;
+  border: 1px solid var(--border-light);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.repo-card:hover {
+  border-color: rgba(247, 147, 26, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(247, 147, 26, 0.08);
+}
+
+/* ── Q&A Accordion ───────────────────────────────────── */
+
+.qa-accordion {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.3s ease;
+}
+
+.qa-accordion.open {
+  opacity: 1;
+}
+
+.diff-badge {
+  @apply text-xs font-semibold px-2.5 py-0.5 rounded-full border;
+}
+
+.qa-toggle {
+  @apply w-full flex items-center gap-3 text-left cursor-pointer
+         rounded-lg p-3 transition-colors duration-150 text-sm font-medium leading-snug;
+}
+
+.qa-toggle:hover {
+  background: rgba(247, 147, 26, 0.06);
+}
+
+.qa-toggle:focus-visible {
+  @apply outline-none ring-2 ring-bitcoin ring-offset-2;
+  ring-offset-color: var(--bg-surface);
+}
+
+.qa-icon {
+  @apply shrink-0 w-6 h-6 rounded-full flex items-center justify-center
+         text-xs font-bold transition-colors duration-150;
+}
+
+/* ── Fun fact box ────────────────────────────────────── */
+
+.fun-fact-box {
+  background: var(--fun-fact-bg);
+  border-color: var(--fun-fact-border);
+}
+
+/* ── Focus override for all interactive elements ─────── */
+
+a:focus-visible,
+button:focus-visible {
+  @apply outline-none ring-2 ring-bitcoin ring-offset-2;
+  ring-offset-color: var(--bg-body);
+}
+
+/* ── Skip-to-content link (visually hidden until focused) ── */
+
+.skip-link {
+  @apply absolute -top-10 left-4 z-50 px-4 py-2 bg-bitcoin text-charcoal
+         text-sm font-semibold rounded-b-lg transition-all duration-150;
+}
+
+.skip-link:focus {
+  @apply top-0;
+}
