@@ -331,6 +331,9 @@
             <button @click="insertReflectionsAll()" x-show="lessonPlans.length" class="inline-flex items-center gap-1.5 rounded-lg border bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 shadow-sm transition-colors hover:bg-amber-100">
               <span>&#x1F4AD;</span> Insert All Reflections
             </button>
+            <button @click="attachRekodAll()" x-show="lessonPlans.length" class="inline-flex items-center gap-1.5 rounded-lg border bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-700 shadow-sm transition-colors hover:bg-indigo-100">
+              <span>&#x1F4CA;</span> Attach Rekod Transit
+            </button>
           </div>
         </div>
 
@@ -504,7 +507,51 @@
                   </button>
                 </div>
 
-                <!-- copy / print -->
+                <!-- rekod transit -->
+                <div x-show="plan.rekodTransit?.students?.length" x-cloak>
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500">📊 Rekod Transit — Tahap Penguasaan</h4>
+                    <button @click.stop="plan._rekodOpen = !plan._rekodOpen" class="rounded px-2 py-0.5 text-[10px] font-medium text-indigo-600 hover:bg-indigo-50" x-text="plan._rekodOpen ? 'Hide' : 'Show'"></button>
+                  </div>
+                  <div x-show="plan._rekodOpen" x-collapse class="overflow-x-auto rounded-lg border bg-white text-xs">
+                    <table class="w-full min-w-[400px]">
+                      <thead>
+                        <tr class="border-b bg-slate-50">
+                          <th class="px-2 py-1.5 text-left font-semibold text-slate-500">#</th>
+                          <th class="px-2 py-1.5 text-left font-semibold text-slate-500">Name</th>
+                          <th class="px-2 py-1.5 text-center font-semibold text-slate-500" title="Listening">L</th>
+                          <th class="px-2 py-1.5 text-center font-semibold text-slate-500" title="Speaking">S</th>
+                          <th class="px-2 py-1.5 text-center font-semibold text-slate-500" title="Reading">R</th>
+                          <th class="px-2 py-1.5 text-center font-semibold text-slate-500" title="Writing">W</th>
+                          <th class="px-2 py-1.5 text-center font-semibold text-slate-500" title="Overall">O</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <template x-for="(s, si) in plan.rekodTransit.students" :key="si">
+                          <tr class="border-b last:border-0 hover:bg-slate-50">
+                            <td class="px-2 py-1 text-slate-400" x-text="s.bil"></td>
+                            <td class="px-2 py-1 font-medium text-slate-700" x-text="s.name"></td>
+                            <td class="px-2 py-1 text-center"><span class="inline-flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold" x-bind:class="TP_BADGES[s.listening] || 'bg-slate-100'" x-text="s.listening"></span></td>
+                            <td class="px-2 py-1 text-center"><span class="inline-flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold" x-bind:class="TP_BADGES[s.speaking] || 'bg-slate-100'" x-text="s.speaking"></span></td>
+                            <td class="px-2 py-1 text-center"><span class="inline-flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold" x-bind:class="TP_BADGES[s.reading] || 'bg-slate-100'" x-text="s.reading"></span></td>
+                            <td class="px-2 py-1 text-center"><span class="inline-flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold" x-bind:class="TP_BADGES[s.writing] || 'bg-slate-100'" x-text="s.writing"></span></td>
+                            <td class="px-2 py-1 text-center"><span class="inline-flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold" x-bind:class="TP_BADGES[s.overall] || 'bg-slate-100'" x-text="s.overall"></span></td>
+                          </tr>
+                        </template>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div x-show="plan._rekodOpen" class="mt-1 space-y-0.5">
+                    <template x-for="(s, si) in plan.rekodTransit.students.filter(s => s.intervention)" :key="'i' + si">
+                      <p class="text-[10px] text-amber-700">
+                        <span class="font-medium" x-text="s.name + ':'"></span>
+                        <span x-text="s.intervention"></span>
+                      </p>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- copy / print / performance -->
                 <div class="flex flex-wrap gap-2 border-t pt-4">
                   <button @click.stop="copyPlan(plan)" class="inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"/></svg>
@@ -513,6 +560,9 @@
                   <button @click.stop="downloadPlanPDF(plan)" class="inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                     Download PDF
+                  </button>
+                  <button @click.stop="plan._rekodOpen = !plan._rekodOpen" class="inline-flex items-center gap-1.5 rounded-lg border bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-100">
+                    <span>&#x1F4CA;</span> <span x-text="plan._rekodOpen ? 'Hide Rekod' : 'Show Rekod'"></span>
                   </button>
                 </div>
               </div>
@@ -722,6 +772,54 @@
           </div>
         </div>
 
+        <!-- Rekod Transit header -->
+        <div class="mb-6 rounded-xl border bg-white p-4 shadow-sm">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-lg">&#x1F4CA;</span>
+              <div>
+                <p class="text-sm font-semibold text-slate-900">Rekod Transit — Tahap Penguasaan</p>
+                <p class="text-xs text-slate-500">DSKP-aligned performance level records for each year group. Attach to lesson plans via the Generate tab.</p>
+              </div>
+            </div>
+            <button @click="attachRekodAll()" class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700">
+              <span>&#x26A1;</span> Attach to All Plans
+            </button>
+          </div>
+        </div>
+
+        <!-- Rekod Transit table -->
+        <div x-show="rekodForYear(reflectionYear).students.length" class="mb-6 overflow-x-auto rounded-xl border bg-white shadow-sm">
+          <table class="w-full min-w-[600px] text-xs">
+            <thead>
+              <tr class="border-b bg-slate-50">
+                <th class="px-3 py-2 text-left font-semibold text-slate-500">#</th>
+                <th class="px-3 py-2 text-left font-semibold text-slate-500">Name</th>
+                <th class="px-3 py-2 text-center font-semibold text-slate-500">Listening</th>
+                <th class="px-3 py-2 text-center font-semibold text-slate-500">Speaking</th>
+                <th class="px-3 py-2 text-center font-semibold text-slate-500">Reading</th>
+                <th class="px-3 py-2 text-center font-semibold text-slate-500">Writing</th>
+                <th class="px-3 py-2 text-center font-semibold text-slate-500">Overall</th>
+                <th class="px-3 py-2 text-left font-semibold text-slate-500">Intervention</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(s, si) in rekodForYear(reflectionYear).students" :key="si">
+                <tr class="border-b last:border-0 hover:bg-slate-50">
+                  <td class="px-3 py-2 text-slate-400" x-text="s.bil"></td>
+                  <td class="px-3 py-2 font-medium text-slate-700" x-text="s.name"></td>
+                  <td class="px-3 py-2 text-center"><span class="inline-flex h-6 w-6 items-center justify-center rounded text-[11px] font-bold" x-bind:class="TP_BADGES[s.listening] || 'bg-slate-100'" x-text="s.listening"></span></td>
+                  <td class="px-3 py-2 text-center"><span class="inline-flex h-6 w-6 items-center justify-center rounded text-[11px] font-bold" x-bind:class="TP_BADGES[s.speaking] || 'bg-slate-100'" x-text="s.speaking"></span></td>
+                  <td class="px-3 py-2 text-center"><span class="inline-flex h-6 w-6 items-center justify-center rounded text-[11px] font-bold" x-bind:class="TP_BADGES[s.reading] || 'bg-slate-100'" x-text="s.reading"></span></td>
+                  <td class="px-3 py-2 text-center"><span class="inline-flex h-6 w-6 items-center justify-center rounded text-[11px] font-bold" x-bind:class="TP_BADGES[s.writing] || 'bg-slate-100'" x-text="s.writing"></span></td>
+                  <td class="px-3 py-2 text-center"><span class="inline-flex h-6 w-6 items-center justify-center rounded text-[11px] font-bold" x-bind:class="TP_BADGES[s.overall] || 'bg-slate-100'" x-text="s.overall"></span></td>
+                  <td class="px-3 py-2 text-[10px] text-amber-700" x-text="s.intervention || '—'"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
         <!-- Reflection cards -->
         <div class="space-y-3">
           <template x-for="(ref, idx) in availableReflections(reflectionYear)" :key="idx">
@@ -781,6 +879,8 @@ document.addEventListener('alpine:init', () => {
     yearGroups: ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6'],
     themes: ['World of Self, Family and Friends','World of Stories','World of Knowledge','World of Arts'],
     skillAreas: ['Listening','Speaking','Reading','Writing','Language Arts'],
+    TP_BADGES: TP_BADGES,
+    SKILL_LABELS: SKILL_LABELS,
 
     // ── Computed ──
     get availableUnits() {
@@ -1152,6 +1252,7 @@ document.addEventListener('alpine:init', () => {
                 ],
             song: unit.songs?.length ? unit.songs[Math.floor(Math.random() * unit.songs.length)] : null,
             reflection: this.generateReflection({ yearGroup: slot.yearGroup }),
+            rekodTransit: JSON.parse(JSON.stringify(this.rekodForYear(slot.yearGroup))),
             _open: true,
             _animating: true,
           }
@@ -1261,6 +1362,7 @@ document.addEventListener('alpine:init', () => {
                 ],
             song: unit.songs?.length ? unit.songs[Math.floor(Math.random() * unit.songs.length)] : null,
             reflection: this.generateReflection(slot),
+            rekodTransit: JSON.parse(JSON.stringify(this.rekodForYear(slot.yearGroup))),
             _open: true,
             _animating: true,
           }
@@ -1282,6 +1384,20 @@ document.addEventListener('alpine:init', () => {
       if (confirm('Delete this lesson plan?')) {
         this.lessonPlans = this.lessonPlans.filter(p => p.id !== id)
       }
+    },
+
+    // ── Rekod Transit functions ──
+    rekodForYear(yearGroup) {
+      return REKOD_TRANSIT[yearGroup] || { schoolType: '', students: [] }
+    },
+
+    get rekodTransitYears() {
+      return Object.keys(REKOD_TRANSIT)
+    },
+
+    generatePerformanceLevel(plan) {
+      const rekod = this.rekodForYear(plan.yearGroup)
+      return rekod.students.length > 0 ? rekod : null
     },
 
     // ── Reflection functions ──
@@ -1307,6 +1423,14 @@ document.addEventListener('alpine:init', () => {
       return REFLECTIONS[yearGroup] || []
     },
 
+    attachRekodAll() {
+      this.lessonPlans.forEach(p => {
+        if (!p.rekodTransit || !p.rekodTransit.students?.length) {
+          p.rekodTransit = JSON.parse(JSON.stringify(this.rekodForYear(p.yearGroup)))
+        }
+      })
+    },
+
     copyReflection(text) {
       navigator.clipboard.writeText(text || '')
     },
@@ -1329,6 +1453,10 @@ document.addEventListener('alpine:init', () => {
         `Moral Values: ${plan.moralValues.join(', ')}`,
         `CCE: ${plan.cce.join(', ')}`,
         plan.reflection ? `\nTEACHER'S REFLECTION:\n${plan.reflection}` : '',
+        plan.rekodTransit?.students?.length ? '\nREKOD TRANSIT — TAHAP PENGUASAAN:' : '',
+        ...(plan.rekodTransit?.students || []).map(s =>
+          `  ${s.bil}. ${s.name}  L:${s.listening} S:${s.speaking} R:${s.reading} W:${s.writing} O:${s.overall}${s.intervention ? ' — ' + s.intervention : ''}`
+        ),
       ]
       navigator.clipboard.writeText(lines.join('\n'))
     },
@@ -1360,6 +1488,7 @@ document.addEventListener('alpine:init', () => {
           ${plan.moralValues.length ? '<div style="margin-top:1.25rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Moral Values</h2><div style="display:flex;flex-wrap:wrap;gap:.375rem">' + plan.moralValues.map(v => '<span style="background:#f1f5f9;border-radius:9999px;padding:.125rem .55rem;font-size:.72rem;color:#475569">' + this.escapeHtml(v) + '</span>').join('') + '</div></div>' : ''}
           ${plan.cce.length ? '<div style="margin-top:1.25rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">CCE</h2><div style="display:flex;flex-wrap:wrap;gap:.375rem">' + plan.cce.map(c => '<span style="background:#f1f5f9;border-radius:9999px;padding:.125rem .55rem;font-size:.72rem;color:#475569">' + this.escapeHtml(c) + '</span>').join('') + '</div></div>' : ''}
           ${plan.reflection ? '<div style="margin-top:1.25rem;border-top:2px solid #e2e8f0;padding-top:.75rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;margin-bottom:.35rem">Teacher\u2019s Reflection</h2><p style="font-size:.8rem;color:#475569;font-style:italic;white-space:pre-wrap">' + this.escapeHtml(plan.reflection) + '</p></div>' : ''}
+          ${plan.rekodTransit?.students?.length ? '<div style="margin-top:1.25rem;border-top:2px solid #e2e8f0;padding-top:.75rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;margin-bottom:.5rem">Rekod Transit — Tahap Penguasaan</h2><table style="width:100%;border-collapse:collapse;font-size:.75rem"><thead><tr style="background:#f8fafc;border-bottom:2px solid #e2e8f0"><th style="padding:.35rem .5rem;text-align:left;font-weight:600;color:#64748b">#</th><th style="padding:.35rem .5rem;text-align:left;font-weight:600;color:#64748b">Name</th><th style="padding:.35rem .5rem;text-align:center;font-weight:600;color:#64748b">L</th><th style="padding:.35rem .5rem;text-align:center;font-weight:600;color:#64748b">S</th><th style="padding:.35rem .5rem;text-align:center;font-weight:600;color:#64748b">R</th><th style="padding:.35rem .5rem;text-align:center;font-weight:600;color:#64748b">W</th><th style="padding:.35rem .5rem;text-align:center;font-weight:600;color:#64748b">O</th></tr></thead><tbody>' + plan.rekodTransit.students.map(s => '<tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.3rem .5rem;color:#94a3b8">' + s.bil + '</td><td style="padding:.3rem .5rem;font-weight:500">' + this.escapeHtml(s.name) + '</td><td style="padding:.3rem .5rem;text-align:center"><span style="display:inline-block;width:1.5rem;height:1.5rem;line-height:1.5rem;text-align:center;border-radius:9999px;font-size:.7rem;font-weight:700;background:' + (s.listening >= 5 ? '#dcfce7' : s.listening >= 3 ? '#fef3c7' : '#fee2e2') + ';color:' + (s.listening >= 5 ? '#166534' : s.listening >= 3 ? '#92400e' : '#991b1b') + '">' + s.listening + '</span></td><td style="padding:.3rem .5rem;text-align:center">' + s.speaking + '</td><td style="padding:.3rem .5rem;text-align:center">' + s.reading + '</td><td style="padding:.3rem .5rem;text-align:center">' + s.writing + '</td><td style="padding:.3rem .5rem;text-align:center;font-weight:700">' + s.overall + '</td></tr>').join('') + '</tbody></table>' + (plan.rekodTransit.students.some(s => s.intervention) ? '<div style="margin-top:.5rem;font-size:.7rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:.5rem;padding:.5rem .75rem">' + plan.rekodTransit.students.filter(s => s.intervention).map(s => '<div><strong>' + this.escapeHtml(s.name) + ':</strong> ' + this.escapeHtml(s.intervention) + '</div>').join('') + '</div>' : '') + '</div>' : ''}
           <div style="margin-top:1.5rem;padding-top:.75rem;border-top:2px solid #e2e8f0;font-size:.68rem;color:#94a3b8;text-align:center">Generated by MALP — Malaysian Lesson Planner</div>
         </div>`
     },
@@ -3892,6 +4021,111 @@ const HOLIDAYS_2026 = [
   { label: 'Cuti Penggal 2', start: '2026-08-29', end: '2026-09-06' },
   { label: 'Cuti Akhir Persekolahan', start: '2026-12-05', end: '2026-12-31' },
 ]
+
+// ── Rekod Transit 2026 ──
+const SKILL_LABELS = {
+  listening: 'Mendengar (Listening)',
+  speaking: 'Bertutur (Speaking)',
+  reading: 'Membaca (Reading)',
+  writing: 'Menulis (Writing)',
+}
+
+const REKOD_TRANSIT = {
+  'Year 1': {
+    schoolType: 'SJK(C/T)',
+    students: [
+      { bil: 1,  name: 'Bernice Kong Zhi Ying',     listening: 4, speaking: 4, reading: 3, writing: 4, overall: 4, intervention: '' },
+      { bil: 2,  name: 'Kok Chee Hang',              listening: 3, speaking: 2, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 3,  name: 'Kok Hao Yuen',               listening: 3, speaking: 4, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 4,  name: 'Lai Jing Ting',              listening: 5, speaking: 5, reading: 5, writing: 5, overall: 5, intervention: '' },
+      { bil: 5,  name: 'Lai Pei Shen',               listening: 4, speaking: 4, reading: 5, writing: 5, overall: 4, intervention: '' },
+      { bil: 6,  name: 'Lakshaiyan A/L James',       listening: 5, speaking: 5, reading: 5, writing: 5, overall: 5, intervention: '' },
+      { bil: 7,  name: 'Lee Iynna',                  listening: 4, speaking: 4, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 8,  name: 'Lim Jing Tong',              listening: 4, speaking: 4, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 9,  name: 'Mathi Selvam A/L Ravichandran', listening: 2, speaking: 3, reading: 2, writing: 2, overall: 2, intervention: '' },
+      { bil: 10, name: 'Pang Yunxin',                listening: 4, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 11, name: 'Shavina Sree A/P Mogan Raj', listening: 4, speaking: 4, reading: 2, writing: 2, overall: 3, intervention: '' },
+      { bil: 12, name: 'Sin Chee Chung',             listening: 2, speaking: 3, reading: 2, writing: 2, overall: 2, intervention: 'HE NEEDS MORE ATTENTION TO GUIDE THROUGH HIS ALL FOR SKILLS ESPECIALLY WRITING.' },
+    ],
+  },
+  'Year 2': {
+    schoolType: 'SJK(C/T)',
+    students: [
+      { bil: 1,  name: 'Arshdeep Singh A/L Taranjeet Singh', listening: 4, speaking: 4, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 2,  name: 'Cheah Ming Xuan',           listening: 4, speaking: 4, reading: 4, writing: 3, overall: 4, intervention: '' },
+      { bil: 3,  name: 'Foo Yi Ting',               listening: 5, speaking: 4, reading: 5, writing: 5, overall: 5, intervention: '' },
+      { bil: 4,  name: 'Hendrikus Pada A/L Prigo',   listening: 1, speaking: 1, reading: 2, writing: 2, overall: 2, intervention: 'ASK TO CONSTRUCT SIMPLE SENTENCES FIRST.' },
+      { bil: 5,  name: 'Kok Sin Ling',              listening: 5, speaking: 4, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 6,  name: 'Lai Shu Ni',                listening: 4, speaking: 4, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 7,  name: 'Liew Zi Qian',              listening: 2, speaking: 2, reading: 2, writing: 3, overall: 2, intervention: 'ASK TO CONSTRUCT SIMPLE SENTENCES FIRST.' },
+      { bil: 8,  name: 'Lim Zing Heng',             listening: 3, speaking: 3, reading: 2, writing: 2, overall: 2, intervention: '' },
+      { bil: 9,  name: 'Macson Yoong',              listening: 5, speaking: 5, reading: 4, writing: 4, overall: 5, intervention: '' },
+      { bil: 10, name: 'Novian',                    listening: 3, speaking: 3, reading: 3, writing: 4, overall: 3, intervention: '' },
+      { bil: 11, name: 'Ruvisha A/P Dilip Kumar',   listening: 5, speaking: 5, reading: 5, writing: 4, overall: 5, intervention: '' },
+      { bil: 12, name: 'Saraniya Sree A/P Mogan Raj', listening: 4, speaking: 4, reading: 2, writing: 2, overall: 2, intervention: '' },
+      { bil: 13, name: 'Tanalechimi A/P Siva Perumal', listening: 1, speaking: 1, reading: 2, writing: 2, overall: 1, intervention: 'ASK TO CONSTRUCT SIMPLE SENTENCES FIRST.' },
+      { bil: 14, name: 'Yaathish A/L Kalidass',     listening: 2, speaking: 2, reading: 2, writing: 3, overall: 2, intervention: 'ASK TO CONSTRUCT SIMPLE SENTENCES FIRST.' },
+    ],
+  },
+  'Year 3': {
+    schoolType: 'SJK(C/T)',
+    students: [
+      { bil: 1, name: 'Aiden Chin Park Yin',         listening: 3, speaking: 3, reading: 4, writing: 3, overall: 3, intervention: '' },
+      { bil: 2, name: 'Aurelius Sosiseko Misa',      listening: 4, speaking: 4, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 3, name: 'Kok Zi Ying',                listening: 3, speaking: 3, reading: 3, writing: 4, overall: 3, intervention: '' },
+      { bil: 4, name: 'Lai Jing Rou',               listening: 5, speaking: 4, reading: 5, writing: 4, overall: 4, intervention: '' },
+      { bil: 5, name: 'Lam Yu Na',                  listening: 4, speaking: 5, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 6, name: 'Liew Heng Kai',              listening: 4, speaking: 4, reading: 3, writing: 2, overall: 3, intervention: 'HE HAS SHORT ATTENTION SPAN. MORE ATTENTION HAS TO BE GIVEN TO HIM.' },
+      { bil: 7, name: 'Lim Yi Sheng',               listening: 2, speaking: 2, reading: 2, writing: 2, overall: 2, intervention: 'HE HAS SLOWER RESPONSES. MORE TIME IS GIVEN TO HIM.' },
+      { bil: 8, name: 'Nihaharika Binti Abdul Muhaimin', listening: 3, speaking: 4, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 9, name: 'Pritishaa Sree A/P James',   listening: 5, speaking: 5, reading: 4, writing: 4, overall: 4, intervention: '' },
+    ],
+  },
+  'Year 4': {
+    schoolType: 'SJK(C/T)',
+    students: [
+      { bil: 1, name: 'Student 1', listening: 3, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 2, name: 'Student 2', listening: 3, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+    ],
+  },
+  'Year 5': {
+    schoolType: 'SJK(C/T)',
+    students: [
+      { bil: 1, name: 'Darrshan A/L Balakuru',       listening: 3, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 2, name: 'Hor Yi Hui',                  listening: 4, speaking: 3, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 3, name: 'Khong Mei See',               listening: 4, speaking: 3, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 4, name: 'Lim Jing Xuan',               listening: 4, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 5, name: 'Maxime Yoong',                listening: 5, speaking: 5, reading: 5, writing: 5, overall: 5, intervention: '' },
+      { bil: 6, name: 'Tew Wen Yong',                listening: 5, speaking: 5, reading: 5, writing: 5, overall: 5, intervention: '' },
+      { bil: 7, name: 'Cheah Yan Yee',               listening: 3, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 8, name: 'Foo Guo Jun',                 listening: 3, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+    ],
+  },
+  'Year 6': {
+    schoolType: 'SJK(C/T)',
+    students: [
+      { bil: 1,  name: 'Alicia Chin Tze Ting',       listening: 3, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 2,  name: 'Chai Carol',                 listening: 6, speaking: 5, reading: 5, writing: 5, overall: 5, intervention: '' },
+      { bil: 3,  name: 'Choo Janna',                 listening: 4, speaking: 3, reading: 3, writing: 4, overall: 4, intervention: '' },
+      { bil: 4,  name: 'Goh Hua Yi',                 listening: 4, speaking: 4, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 5,  name: 'Koh Quan Jun',               listening: 3, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: 'LAZY ATTITUDE. CONSTANT REMINDERS ARE GIVEN TO HIM.' },
+      { bil: 6,  name: 'Lee Pui Ying',               listening: 3, speaking: 3, reading: 3, writing: 4, overall: 3, intervention: '' },
+      { bil: 7,  name: 'Lee Yihann',                 listening: 4, speaking: 4, reading: 4, writing: 4, overall: 4, intervention: '' },
+      { bil: 8,  name: 'Liew Wei Yang',              listening: 3, speaking: 3, reading: 3, writing: 3, overall: 3, intervention: '' },
+      { bil: 9,  name: 'Liew Zi Shun',               listening: 2, speaking: 2, reading: 3, writing: 3, overall: 2, intervention: '' },
+      { bil: 10, name: 'Yong Han Peng',              listening: 2, speaking: 1, reading: 1, writing: 1, overall: 1, intervention: 'LAZY ATTITUDE. CONSTANT REMINDERS ARE GIVEN TO HIM.' },
+    ],
+  },
+}
+
+const TP_BADGES = {
+  1: 'bg-red-100 text-red-800 border-red-200',
+  2: 'bg-orange-100 text-orange-800 border-orange-200',
+  3: 'bg-amber-100 text-amber-800 border-amber-200',
+  4: 'bg-lime-100 text-lime-800 border-lime-200',
+  5: 'bg-green-100 text-green-800 border-green-200',
+  6: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+}
 </script>
 </body>
 </html>
