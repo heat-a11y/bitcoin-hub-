@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin Knowledge Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0a0a1a;
+  --bg2: #0f0f24;
+  --bg3: #151530;
+  --orange: #F7931A;
+  --gold: #FFD700;
+  --green: #00D4AA;
+  --red: #FF6B6B;
+  --purple: #8B5CF6;
+  --blue: #60A5FA;
+  --card: rgba(255,255,255,.03);
+  --card-hover: rgba(255,255,255,.06);
+  --border: rgba(255,255,255,.08);
+  --border-orange: rgba(247,147,26,.2);
+  --text: #fff;
+  --text-dim: rgba(255,255,255,.5);
+  --text-muted: rgba(255,255,255,.35);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-pixel: 'Press Start 2P', monospace;
+  --nav-h: 64px;
+}
+html { font-size: 62.5%; scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+img { max-width: 100%; display: block; }
+input, select, textarea { font-family: inherit; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
+
+/* ── CANVAS BG ── */
+#particle-canvas {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--nav-h);
+  background: rgba(10,10,26,.85);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 24px;
+  height: 100%; display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.6rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--orange), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nav-logo span { font-size: 1.8rem; }
+.nav-links { display: flex; align-items: center; gap: 2px; }
+.nav-links a {
+  padding: 8px 14px; font-size: 1.25rem; font-weight: 500;
+  color: var(--text-dim); border-radius: 8px;
+  transition: all .2s;
+}
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.nav-cta {
+  background: linear-gradient(135deg, var(--orange), var(--gold));
+  color: var(--bg) !important; font-weight: 700 !important;
+  padding: 8px 20px !important; border-radius: 50px !important;
+}
+.nav-cta:hover { transform: translateY(-1px); }
+.mobile-toggle { display: none; flex-direction: column; gap: 5px; padding: 8px; cursor: pointer; }
+.mobile-toggle span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: all .3s; }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 100px 24px 60px;
+  overflow: hidden;
+}
+.hero-content { position: relative; z-index: 2; max-width: 720px; }
+.hero-badge {
+  display: inline-block;
+  padding: 6px 18px; border-radius: 50px;
+  font-size: 1.1rem; font-weight: 600;
+  background: rgba(247,147,26,.12); color: var(--orange);
+  border: 1px solid rgba(247,147,26,.2);
+  margin-bottom: 20px; letter-spacing: .05em;
+}
+.hero h1 {
+  font-size: clamp(3.2rem, 8vw, 7rem); font-weight: 900;
+  line-height: 1.05; letter-spacing: -.03em;
+  background: linear-gradient(135deg, #fff 30%, var(--orange) 70%, var(--gold) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+.hero .sub {
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  color: var(--text-dim); max-width: 560px; margin: 0 auto 32px;
+  line-height: 1.7;
+}
+.hero .sub em { color: var(--orange); font-style: normal; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 32px; border-radius: 50px;
+  font-size: 1.35rem; font-weight: 600;
+  transition: all .25s ease; cursor: pointer;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--orange), var(--gold));
+  color: var(--bg);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(247,147,26,.3); }
+.btn-secondary {
+  background: transparent; color: var(--text);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--orange); transform: translateY(-2px); }
+.hero-stats {
+  display: flex; gap: 40px; justify-content: center; margin-top: 40px;
+}
+.hero-stat { text-align: center; }
+.hero-stat .num { font-size: 2.4rem; font-weight: 800; color: var(--orange); }
+.hero-stat .lbl { font-size: 1.15rem; color: var(--text-dim); margin-top: 2px; }
+
+/* ── FLOATING ORBS ── */
+.floating-orbs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+.floating-orbs span {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, rgba(247,147,26,.08) 0%, transparent 70%);
+  animation: floatOrb 20s infinite ease-in-out;
+}
+.floating-orbs span:nth-child(1) { width: 400px; height: 400px; top: -100px; left: -100px; animation-delay: 0s; }
+.floating-orbs span:nth-child(2) { width: 300px; height: 300px; bottom: -50px; right: -50px; animation-delay: -7s; background: radial-gradient(circle, rgba(139,92,246,.06) 0%, transparent 70%); }
+.floating-orbs span:nth-child(3) { width: 200px; height: 200px; top: 50%; left: 60%; animation-delay: -14s; background: radial-gradient(circle, rgba(0,212,170,.05) 0%, transparent 70%); }
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -40px) scale(1.1); }
+  50% { transform: translate(-20px, 20px) scale(.95); }
+  75% { transform: translate(40px, 30px) scale(1.05); }
+}
+
+/* ── TICKER ── */
+.ticker {
+  position: relative; z-index: 1;
+  background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 16px 0; overflow: hidden;
+}
+.ticker-track {
+  display: flex; gap: 48px; animation: tickerScroll 40s linear infinite;
+  width: max-content;
+}
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.ticker-item .label { font-size: 1.1rem; color: var(--text-dim); }
+.ticker-item .value { font-size: 1.5rem; font-weight: 700; }
+.ticker-item .value.up { color: var(--green); }
+.ticker-item .value.down { color: var(--red); }
+
+/* ── SECTIONS ── */
+.section {
+  position: relative; z-index: 1;
+  padding: 80px 0;
+}
+.section-alt { background: var(--bg2); }
+.section-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.section-label {
+  text-align: center; font-size: 1.1rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 8px;
+}
+.section-title {
+  text-align: center; font-size: clamp(2.4rem, 4vw, 3.6rem);
+  font-weight: 800; margin-bottom: 12px; letter-spacing: -.02em;
+}
+.section-title .highlight { color: var(--orange); }
+.section-desc {
+  text-align: center; color: var(--text-dim);
+  max-width: 560px; margin: 0 auto 48px; font-size: 1.5rem;
+}
+
+/* ── CARDS ── */
+.card-grid { display: grid; gap: 20px; }
+.card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px;
+  transition: all .3s ease;
+}
+.card:hover { background: var(--card-hover); border-color: var(--border-orange); transform: translateY(-2px); }
+.card .icon { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+.card h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+.card p { font-size: 1.25rem; color: var(--text-dim); line-height: 1.6; }
+
+/* ── TOOLS ── */
+.tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.tool-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px;
+  transition: all .3s ease;
+}
+.tool-card:hover { border-color: var(--border-orange); }
+.tool-card h3 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.tool-card .desc { font-size: 1.2rem; color: var(--text-dim); margin-bottom: 16px; }
+.tool-card .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.tool-card .form-row label { font-size: 1.2rem; font-weight: 600; min-width: 60px; color: var(--text-dim); }
+.tc-input {
+  padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04); color: var(--text); font-size: 1.3rem;
+  transition: border-color .2s; flex: 1; min-width: 80px;
+}
+.tc-input:focus { outline: none; border-color: var(--orange); }
+.tc-select {
+  padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.1);
+  background: var(--bg3); color: var(--text); font-size: 1.3rem;
+  transition: border-color .2s; flex: 1; min-width: 80px;
+}
+.tc-select:focus { outline: none; border-color: var(--orange); }
+.tc-output { margin-top: 12px; padding: 14px; background: rgba(255,255,255,.03); border-radius: 12px; }
+.tc-output .big { font-size: 2rem; font-weight: 800; color: var(--orange); }
+.tc-output .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 1.25rem; }
+.tc-output .row .lbl { color: var(--text-dim); }
+.tc-output .row .val { font-weight: 600; }
+.tc-output .row .val.green { color: var(--green); }
+.tc-output .row .val.red { color: var(--red); }
+.tc-range { width: 100%; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--border); outline: none; margin: 8px 0; }
+.tc-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--orange); cursor: pointer; }
+
+/* ── FEE OPTIONS ── */
+.fee-options { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.fee-opt {
+  padding: 6px 16px; border-radius: 50px; font-size: 1.15rem; font-weight: 600;
+  border: 1.5px solid var(--border); cursor: pointer; transition: all .2s;
+  background: transparent; color: var(--text-dim);
+}
+.fee-opt:hover { border-color: var(--orange); color: var(--text); }
+.fee-opt.active { background: rgba(247,147,26,.15); border-color: var(--orange); color: var(--orange); }
+
+/* ── HALVING ── */
+.halving-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; text-align: center; }
+.halving-cell { padding: 12px 8px; background: rgba(255,255,255,.03); border-radius: 12px; }
+.halving-cell .num { font-size: 2.2rem; font-weight: 800; color: var(--orange); font-variant-numeric: tabular-nums; }
+.halving-cell .lbl { font-size: 1rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── GLOSSARY ── */
+.tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 1rem; font-weight: 600; margin-top: 6px; background: rgba(247,147,26,.12); color: var(--orange); }
+
+/* ── ACCORDION ── */
+.accordion details {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 8px; padding: 14px 20px;
+  cursor: pointer; transition: background .2s;
+}
+.accordion details:hover { background: var(--card-hover); }
+.accordion details[open] { border-color: var(--border-orange); }
+.accordion summary {
+  font-weight: 600; font-size: 1.35rem; list-style: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.accordion summary::-webkit-details-marker { display: none; }
+.accordion summary .arrow {
+  transition: transform .2s; font-size: 1rem; color: var(--orange);
+}
+.accordion details[open] summary .arrow { transform: rotate(90deg); }
+.accordion .answer { margin-top: 12px; padding-left: 20px; color: var(--text-dim); font-size: 1.3rem; line-height: 1.7; }
+
+/* ── QUIZ ── */
+.quiz-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 24px; }
+.quiz-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--border); transition: all .3s; }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.active { background: var(--orange); box-shadow: 0 0 12px rgba(247,147,26,.4); }
+.quiz-dot.wrong { background: var(--red); }
+.quiz-question { text-align: center; margin-bottom: 24px; }
+.quiz-question .q-num { font-size: 1.1rem; color: var(--orange); font-weight: 700; margin-bottom: 8px; }
+.quiz-question .q-text { font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; line-height: 1.3; }
+.quiz-options { max-width: 500px; margin: 0 auto; }
+.quiz-opt {
+  display: block; width: 100%; padding: 14px 20px; margin-bottom: 8px;
+  border-radius: 12px; border: 1.5px solid var(--border);
+  background: rgba(255,255,255,.03); font-size: 1.35rem; font-weight: 500;
+  text-align: left; transition: all .2s; cursor: pointer;
+}
+.quiz-opt:hover { border-color: var(--orange); background: rgba(247,147,26,.08); }
+.quiz-opt.selected { border-color: var(--orange); background: rgba(247,147,26,.12); }
+.quiz-opt.correct { border-color: var(--green); background: rgba(0,212,170,.1); }
+.quiz-opt.wrong { border-color: var(--red); background: rgba(255,107,107,.1); }
+.quiz-nav { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+.quiz-result { text-align: center; padding: 32px; }
+.quiz-result .score { font-size: 4rem; font-weight: 900; color: var(--orange); }
+.quiz-result .msg { font-size: 1.6rem; color: var(--text-dim); margin: 8px 0 20px; }
+.quiz-result .review { text-align: left; max-width: 600px; margin: 24px auto 0; }
+.quiz-result .review-item { padding: 14px; border-bottom: 1px solid var(--border); }
+.quiz-result .review-item:last-child { border-bottom: none; }
+.quiz-result .review-item .r-q { font-weight: 600; margin-bottom: 6px; }
+.quiz-result .review-item .r-a { font-size: 1.2rem; color: var(--text-dim); }
+
+/* ── BLOG ── */
+.blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.blog-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; transition: all .3s ease; cursor: pointer;
+}
+.blog-card:hover { transform: translateY(-3px); border-color: var(--border-orange); }
+.blog-card-img {
+  width: 100%; aspect-ratio: 16/10;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem; position: relative;
+}
+.blog-card-body { padding: 20px; }
+.blog-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 50px;
+  font-size: 1rem; font-weight: 600; margin-bottom: 8px;
+  background: rgba(247,147,26,.12); color: var(--orange);
+}
+.blog-card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+.blog-card p { font-size: 1.2rem; color: var(--text-dim); line-height: 1.6; }
+.blog-article {
+  display: none; max-width: 700px; margin: 0 auto;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px;
+}
+.blog-article.show { display: block; }
+.blog-article h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+.blog-article .post-body { color: var(--text-dim); line-height: 1.8; font-size: 1.35rem; }
+.blog-article .post-body h4 { color: var(--text); font-size: 1.5rem; margin: 20px 0 8px; }
+.blog-article .post-body ul { list-style: none; padding: 0; }
+.blog-article .post-body ul li { padding: 6px 0 6px 24px; position: relative; }
+.blog-article .post-body ul li::before { content: '→'; position: absolute; left: 0; color: var(--orange); }
+.blog-article .post-body .highlight {
+  background: rgba(247,147,26,.05); border-left: 3px solid var(--orange);
+  padding: 16px 20px; border-radius: 8px; margin: 16px 0;
+}
+
+/* ── STRATEGIES ── */
+.strat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.strat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px; transition: all .3s ease;
+}
+.strat-card:hover { border-color: var(--border-orange); transform: translateY(-3px); }
+.strat-card .roi {
+  display: inline-block; padding: 4px 12px; border-radius: 50px;
+  font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;
+  background: rgba(0,212,170,.1); color: var(--green);
+}
+.strat-card h3 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+.strat-card p { font-size: 1.25rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 12px; }
+.strat-card .steps { list-style: none; padding: 0; }
+.strat-card .steps li {
+  padding: 4px 0 4px 20px; font-size: 1.2rem; color: var(--text-dim);
+  position: relative;
+}
+.strat-card .steps li::before { content: '◆'; position: absolute; left: 0; color: var(--orange); font-size: .8rem; }
+
+/* ── COMMUNITY ── */
+.community-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center; }
+.community-stat { padding: 28px; }
+.community-stat .num { font-size: 3.2rem; font-weight: 900; color: var(--orange); }
+.community-stat .lbl { font-size: 1.25rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── NEWSLETTER ── */
+.newsletter-box {
+  background: linear-gradient(135deg, rgba(247,147,26,.08), rgba(255,215,0,.05));
+  border: 1px solid var(--border-orange); border-radius: 24px;
+  padding: 48px 32px; text-align: center; max-width: 600px; margin: 0 auto;
+}
+.newsletter-box h3 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+.newsletter-box p { color: var(--text-dim); margin-bottom: 24px; }
+.newsletter-form { display: flex; gap: 8px; max-width: 440px; margin: 0 auto; }
+.newsletter-form input {
+  flex: 1; padding: 14px 20px; border-radius: 50px;
+  border: 1.5px solid var(--border); background: rgba(255,255,255,.04);
+  color: var(--text); font-size: 1.35rem; outline: none;
+}
+.newsletter-form input:focus { border-color: var(--orange); }
+.newsletter-form button {
+  padding: 14px 28px; border-radius: 50px; white-space: nowrap;
+  background: linear-gradient(135deg, var(--orange), var(--gold));
+  color: var(--bg); font-weight: 700; font-size: 1.3rem;
+  transition: all .2s;
+}
+.newsletter-form button:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(247,147,26,.3); }
+
+/* ── COMPARE TABLE ── */
+.compare-table { width: 100%; border-collapse: collapse; border-radius: 16px; overflow: hidden; }
+.compare-table th { background: rgba(247,147,26,.15); color: var(--orange); padding: 12px 16px; text-align: left; font-weight: 700; font-size: 1.2rem; }
+.compare-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 1.25rem; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table td:first-child { font-weight: 600; color: var(--text); }
+.compare-table td:not(:first-child) { color: var(--text-dim); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  background: var(--bg2); border-top: 1px solid var(--border);
+  padding: 60px 0 0;
+}
+.footer-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px 40px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+}
+footer h4 { font-size: 1.1rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text); margin-bottom: 16px; }
+footer ul { list-style: none; }
+footer li { margin-bottom: 8px; }
+footer a { font-size: 1.2rem; color: var(--text-dim); transition: color .2s; }
+footer a:hover { color: var(--orange); }
+.footer-brand p { font-size: 1.2rem; color: var(--text-dim); line-height: 1.7; margin-top: 10px; max-width: 320px; }
+.footer-social { display: flex; gap: 12px; margin-top: 16px; }
+.footer-social a {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border); display: flex;
+  align-items: center; justify-content: center;
+  transition: all .2s; font-size: 1.4rem;
+}
+.footer-social a:hover { border-color: var(--orange); background: rgba(247,147,26,.1); }
+.footer-bottom {
+  border-top: 1px solid var(--border); padding: 16px 24px;
+  text-align: center; font-size: 1.15rem; color: var(--text-muted);
+}
+
+/* ── ANIMATIONS ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: all .7s cubic-bezier(.16,1,.3,1); }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+.fade-in:nth-child(2) { transition-delay: .1s; }
+.fade-in:nth-child(3) { transition-delay: .2s; }
+.fade-in:nth-child(4) { transition-delay: .3s; }
+.fade-in:nth-child(5) { transition-delay: .4s; }
+
+.hero-reveal { opacity: 0; transform: translateY(40px) scale(.96); animation: heroIn .8s cubic-bezier(.16,1,.3,1) forwards; }
+.hero-reveal:nth-child(1) { animation-delay: .1s; }
+.hero-reveal:nth-child(2) { animation-delay: .25s; }
+.hero-reveal:nth-child(3) { animation-delay: .4s; }
+.hero-reveal:nth-child(4) { animation-delay: .55s; }
+
+@keyframes heroIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(247,147,26,.1); }
+  50% { box-shadow: 0 0 40px rgba(247,147,26,.25); }
+}
+.glow-card { animation: pulseGlow 3s ease-in-out infinite; }
+
+/* ── QUEST GAME ── */
+#questGame { margin-top: 24px; }
+#questCanvas { display: block; margin: 0 auto; border: 2px solid var(--border); border-radius: 12px; image-rendering: pixelated; max-width: 100%; height: auto; }
+.quest-hud { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; max-width: 640px; margin-left: auto; margin-right: auto; }
+.quest-hud .stat { display: flex; align-items: center; gap: 8px; }
+.quest-hud .stat .lbl { font-size: 1rem; color: var(--text-dim); }
+.quest-hud .stat .val { font-size: 1.4rem; font-weight: 700; }
+.quest-bar { width: 100px; height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; display: inline-block; }
+.quest-bar .fill { height: 100%; border-radius: 4px; transition: width .3s; }
+.quest-bar .fill.hp { background: var(--red); }
+.quest-bar .fill.xp { background: var(--orange); }
+.quest-battle { display: none; max-width: 640px; margin: 12px auto 0; padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; text-align: center; }
+.quest-battle.show { display: block; }
+.quest-battle .boss-name { font-size: 1.3rem; color: var(--red); font-weight: 700; }
+.quest-battle .q-text { font-size: 1.3rem; margin: 12px 0; color: var(--text); }
+.quest-battle .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.quest-battle .q-opts button { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,.03); font-size: 1.15rem; transition: all .2s; color: var(--text); cursor: pointer; }
+.quest-battle .q-opts button:hover { border-color: var(--orange); background: rgba(247,147,26,.08); }
+.quest-battle .q-opts button:disabled { opacity: .4; cursor: not-allowed; }
+.quest-battle .q-opts button.correct { border-color: var(--green); background: rgba(0,212,170,.15); }
+.quest-battle .q-opts button.wrong { border-color: var(--red); background: rgba(255,107,107,.15); }
+.quest-battle .log { font-size: 1.15rem; color: var(--text-dim); margin-top: 10px; min-height: 2em; }
+.quest-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(10,10,26,.92); display: none; align-items: center; justify-content: center; }
+.quest-overlay.show { display: flex; }
+.quest-overlay .panel { max-width: 480px; padding: 40px; text-align: center; }
+.quest-overlay .panel h2 { font-size: 2.4rem; font-weight: 800; margin-bottom: 12px; }
+
+/* ── MOBILE ── */
+@media (max-width: 900px) {
+  .tools-grid { grid-template-columns: 1fr; }
+  .strat-grid { grid-template-columns: 1fr; }
+  .blog-grid { grid-template-columns: 1fr; }
+  .card-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .mobile-toggle { display: flex; }
+  .nav-links.open { display: flex; flex-direction: column; position: absolute; top: var(--nav-h); left: 0; right: 0; background: rgba(10,10,26,.98); border-bottom: 1px solid var(--border); padding: 12px; gap: 4px; }
+  .nav-links.open a { width: 100%; }
+  .community-stats { grid-template-columns: 1fr; }
+  .halving-grid { grid-template-columns: repeat(3, 1fr); }
+  .hero-stats { gap: 24px; flex-wrap: wrap; }
+  .card-grid-3 { grid-template-columns: 1fr; }
+  .card-grid-2 { grid-template-columns: 1fr; }
+  .newsletter-form { flex-direction: column; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .section { padding: 50px 0; }
+}
+@media (max-width: 900px) {
+  .quest-battle .q-opts { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .card-grid-4 { grid-template-columns: 1fr; }
+  .halving-grid { grid-template-columns: repeat(2, 1fr); }
+  .quest-hud { flex-direction: column; align-items: stretch; text-align: center; }
+  .quest-hud .stat { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo"><span>₿</span> Bitcoin Hub</a>
+    <div class="mobile-toggle" onclick="this.classList.toggle('active');document.querySelector('.nav-links').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="nav-links">
+      <a href="#tools">Tools</a>
+      <a href="#quest">Quest</a>
+      <a href="#strategies">Strategies</a>
+      <a href="#glossary">Glossary</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#blog">Blog</a>
+      <a href="#compare" class="nav-cta">₿ vs Money</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero" id="home">
+  <div class="floating-orbs"><span></span><span></span><span></span></div>
+  <div class="hero-content">
+    <div class="hero-badge">⚡ Curated Bitcoin Knowledge</div>
+    <div class="hero-reveal"><svg style="width:64px;height:64px;margin-bottom:12px" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="30" fill="#f7931a"/><text x="32" y="42" text-anchor="middle" font-size="32" font-weight="bold" fill="white" font-family="sans-serif">₿</text><circle cx="32" cy="32" r="30" stroke="rgba(255,255,255,.2)" stroke-width="2" fill="none"/><circle cx="32" cy="32" r="36" stroke="rgba(247,147,26,.3)" stroke-width="1" fill="none"/></svg></div>
+    <h1 class="hero-reveal">Your Bitcoin<br>Knowledge Hub</h1>
+    <p class="sub hero-reveal">From <em>newbie</em> to <em>advanced</em>. Interactive tools, games, glossary, strategies &amp; curated resources — all in one place.</p>
+    <div class="hero-btns hero-reveal">
+      <a href="#tools" class="btn btn-primary">⚡ Explore Tools</a>
+      <a href="#quest" class="btn btn-secondary">🎮 Play Quest</a>
+    </div>
+    <div class="hero-stats hero-reveal">
+      <div class="hero-stat"><div class="num" id="statPrice">—</div><div class="lbl">BTC / USD</div></div>
+      <div class="hero-stat"><div class="num" id="statChange">—</div><div class="lbl">24h Change</div></div>
+      <div class="hero-stat"><div class="num" id="statSupply">—</div><div class="lbl">Circulating Supply</div></div>
+    </div>
+    <div class="hero-reveal" style="margin-top:24px;padding:14px 22px;background:linear-gradient(135deg,#f7931a22,#f7931a08);border:1px solid #f7931a44;border-radius:14px;display:inline-flex;align-items:center;gap:14px;font-size:1.2rem;flex-wrap:wrap;justify-content:center">
+      <span>⚡ Support this hub:</span>
+      <code style="background:var(--card);padding:8px 14px;border-radius:8px;font-size:.95rem;cursor:pointer;word-break:break-all" onclick="navigator.clipboard.writeText('bc1q47tl79lx5ua5hecnsj42d6whgk8hjlqvlv3jh7');this.innerHTML='✓ Copied!'">bc1q47tl79lx5ua5hecnsj42d6whgk8hjlqvlv3jh7</code>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TICKER ─── -->
+<div class="ticker" id="tickerBar">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<!-- ─── TOOLS ─── -->
+<section class="section" id="tools">
+  <div class="section-container">
+    <div class="section-label">Interactive Tools</div>
+    <h2 class="section-title">Play <span class="highlight">With Bitcoin</span></h2>
+    <p class="section-desc">Real calculators, simulators, and live data — all in your browser.</p>
+    <div class="tools-grid">
+
+      <!-- SATOSHI CONVERTER -->
+      <div class="tool-card fade-in">
+        <h3>💰 Satoshi Converter</h3>
+        <p class="desc">1 BTC = 100,000,000 sats. Convert between BTC, USD, and sats instantly.</p>
+        <div class="form-row"><label>BTC</label><input class="tc-input" id="btcInput" value="1" oninput="convertFrom('btc')"></div>
+        <div class="form-row"><label>USD</label><input class="tc-input" id="usdInput" value="62431" oninput="convertFrom('usd')"></div>
+        <div class="form-row"><label>Sats</label><input class="tc-input" id="satInput" value="100000000" oninput="convertFrom('sat')"></div>
+      </div>
+
+      <!-- DCA CALCULATOR -->
+      <div class="tool-card fade-in">
+        <h3>📆 DCA Calculator</h3>
+        <p class="desc">Dollar-Cost Average into Bitcoin. Assumes a conservative 8% annual appreciation.</p>
+        <div class="form-row"><label>Amount</label><input class="tc-input" type="number" id="dcaAmount" value="100"></div>
+        <div class="form-row"><label>Frequency</label><select class="tc-select" id="dcaFrequency"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="monthly">Monthly</option></select></div>
+        <div class="form-row"><label>Duration</label><input class="tc-range" type="range" id="dcaDuration" min="1" max="120" value="12"><span style="font-size:1.2rem;color:var(--text-dim);margin-left:8px" id="dcaDurationLabel">12 months</span></div>
+        <div class="tc-output">
+          <div class="row"><span class="lbl">BTC Accumulated</span><span class="val" id="dcaBtc">0.00000000</span></div>
+          <div class="row"><span class="lbl">Total Invested</span><span class="val" id="dcaInvested">$0.00</span></div>
+          <div class="row"><span class="lbl">Est. Future Value</span><span class="val green" id="dcaValue">$0.00</span></div>
+          <div class="row"><span class="lbl">Est. Return</span><span class="val" id="dcaReturn">+$0.00 (0.0%)</span></div>
+        </div>
+      </div>
+
+      <!-- POSITION SIZER -->
+      <div class="tool-card fade-in">
+        <h3>🎯 Position Sizer</h3>
+        <p class="desc">Calculate your ideal Bitcoin position based on risk tolerance.</p>
+        <div class="form-row"><label>Account</label><input class="tc-input" type="number" id="psAccount" value="10000"></div>
+        <div class="form-row"><label>Risk %</label><input class="tc-input" type="number" id="psRisk" value="1" step="0.1"></div>
+        <div class="form-row"><label>Stop %</label><input class="tc-input" type="number" id="psStop" value="5" step="0.5"></div>
+        <div class="form-row"><label>Entry $</label><input class="tc-input" type="number" id="psEntry" value="62431"></div>
+        <div class="tc-output">
+          <div class="row"><span class="lbl">Position Size</span><span class="val" id="psBtc">0.00000000 BTC</span></div>
+          <div class="row"><span class="lbl">Position Value</span><span class="val" id="psValue">$0.00</span></div>
+          <div class="row"><span class="lbl">Risk Amount</span><span class="val red" id="psRiskAmount">$0.00</span></div>
+        </div>
+      </div>
+
+      <!-- FEE ESTIMATOR -->
+      <div class="tool-card fade-in">
+        <h3>⛽ Fee Estimator</h3>
+        <p class="desc">Estimate Bitcoin transaction fees based on mempool congestion.</p>
+        <div class="fee-options">
+          <button class="fee-opt" data-rate="10" onclick="selectFee(this,10)">Low (10)</button>
+          <button class="fee-opt active" data-rate="30" onclick="selectFee(this,30)">Medium (30)</button>
+          <button class="fee-opt" data-rate="80" onclick="selectFee(this,80)">High (80)</button>
+          <button class="fee-opt" data-rate="-1" onclick="selectFee(this,-1)">Custom</button>
+        </div>
+        <div class="form-row" id="feeCustomRow" style="display:none"><label>sat/vB</label><input class="tc-input" type="number" id="feeCustom" value="50" min="1" max="1000"></div>
+        <div class="form-row"><label>vBytes</label><input class="tc-range" id="feeVbytes" type="range" min="65" max="400" value="140"><span style="font-size:1.2rem;color:var(--text-dim);margin-left:8px" id="feeVbytesLabel">140</span></div>
+        <div class="tc-output">
+          <div class="row"><span class="lbl">Fee Rate</span><span class="val" id="feeRate">30 sat/vB</span></div>
+          <div class="row"><span class="lbl">Total Fee</span><span class="val" id="feeTotal">4,200 sats</span></div>
+          <div class="row"><span class="lbl">≈ USD</span><span class="val" id="feeUsd">$2.62</span></div>
+        </div>
+      </div>
+
+      <!-- HALVING COUNTDOWN -->
+      <div class="tool-card fade-in" style="grid-column:1/-1">
+        <h3>⏳ Halving Countdown</h3>
+        <p class="desc">Next Bitcoin halving ~April 2028: block reward drops from <strong>3.125 → 1.5625 BTC</strong>. Supply crunch incoming.</p>
+        <div class="halving-grid">
+          <div class="halving-cell"><div class="num" id="halvDays">--</div><div class="lbl">Days</div></div>
+          <div class="halving-cell"><div class="num" id="halvHours">--</div><div class="lbl">Hours</div></div>
+          <div class="halving-cell"><div class="num" id="halvMins">--</div><div class="lbl">Minutes</div></div>
+          <div class="halving-cell"><div class="num" id="halvSecs">--</div><div class="lbl">Seconds</div></div>
+          <div class="halving-cell"><div class="num" id="halvBlocks">--</div><div class="lbl">Blocks Left</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── COMPARE ─── -->
+<section class="section section-alt" id="compare">
+  <div class="section-container fade-in">
+    <div class="section-label">Reality Check</div>
+    <h2 class="section-title">₿ Bitcoin vs <span class="highlight">Traditional Money</span></h2>
+    <p class="section-desc">See how Bitcoin stacks up against the financial system.</p>
+    <table class="compare-table">
+      <thead><tr><th></th><th>🏦 Traditional Money</th><th>₿ Bitcoin</th></tr></thead>
+      <tbody>
+        <tr><td>Who controls it?</td><td>Governments &amp; central banks</td><td>Nobody — decentralized</td></tr>
+        <tr><td>Can they print more?</td><td>Yes, infinitely</td><td>No — capped at 21M</td></tr>
+        <tr><td>Transaction speed</td><td>Days (international)</td><td>~10 minutes</td></tr>
+        <tr><td>Need a bank account?</td><td>Yes</td><td>No — just internet</td></tr>
+        <tr><td>Can it be frozen?</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Private?</td><td>Bank sees everything</td><td>Pseudonymous</td></tr>
+        <tr><td>Supply cap</td><td>Unlimited</td><td>21,000,000 BTC</td></tr>
+        <tr><td>Global access</td><td>1.4B unbanked</td><td>Anyone with internet</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── STRATEGIES ─── -->
+<section class="section" id="strategies">
+  <div class="section-container">
+    <div class="section-label">Pro Moves</div>
+    <h2 class="section-title">Bitcoin <span class="highlight">Strategies</span></h2>
+    <p class="section-desc">Time-tested approaches used by experienced Bitcoiners. Not financial advice.</p>
+    <div class="strat-grid">
+      <div class="strat-card fade-in">
+        <span class="roi">Avg. +127% ROI</span>
+        <h3>⏱ DCA + Dip Buy</h3>
+        <p>Recurring buys every week + extra buys when price drops 10%+ from your entry.</p>
+        <ul class="steps">
+          <li>Set weekly recurring buy (e.g. $50)</li>
+          <li>Set alerts for -10%, -20%, -30% drops</li>
+          <li>Buy 2x, 3x, 5x your weekly on dips</li>
+          <li>Transfer to cold storage monthly</li>
+          <li>Never sell during bear markets</li>
+        </ul>
+      </div>
+      <div class="strat-card fade-in">
+        <span class="roi">Avg. +89% ROI</span>
+        <h3>🔍 Liquidity Sweep</h3>
+        <p>Place limit orders at known liquidity zones where price tends to bounce.</p>
+        <ul class="steps">
+          <li>Identify order book bid clusters</li>
+          <li>Place limit orders below cluster</li>
+          <li>Set take-profit at next resistance</li>
+          <li>Repeat as liquidity pools shift</li>
+          <li>Use exchange order books + on-chain data</li>
+        </ul>
+      </div>
+      <div class="strat-card fade-in">
+        <span class="roi">Avg. +214% ROI</span>
+        <h3>♻ Cycle Rotation</h3>
+        <p>Rotate between BTC, ecosystem projects, and stablecoins based on cycle indicators.</p>
+        <ul class="steps">
+          <li>Accumulate BTC in deep bear (80%+ from ATH)</li>
+          <li>Rotate to ecosystem during recovery phase</li>
+          <li>Take profits into stablecoins at euphoria</li>
+          <li>Repeat next cycle</li>
+          <li>Use on-chain metrics (NUPL, MVRV, SOPR)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── GLOSSARY (Clickable Cards) ─── -->
+<section class="section section-alt" id="glossary">
+  <div class="section-container">
+    <div class="section-label">Reference</div>
+    <h2 class="section-title">Bitcoin <span class="highlight">Glossary</span></h2>
+    <p class="section-desc">Tap any term to reveal its definition.</p>
+    <div id="glossaryCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
+  </div>
+</section>
+
+<!-- ─── MYTHS ─── -->
+<section class="section" id="myths">
+  <div class="section-container fade-in">
+    <div class="section-label">Truth Bombs</div>
+    <h2 class="section-title">Myths That <span class="highlight">Need to Die</span></h2>
+    <p class="section-desc">Common misconceptions about Bitcoin — debunked.</p>
+    <div class="accordion" style="max-width:640px;margin:0 auto">
+      <details><summary><span class="arrow">▶</span> ❌ &nbsp;"Only used by criminals"</summary><div class="answer">Cash is used by criminals too. Blockchains are actually <em>more</em> traceable than cash. Legitimate users, companies, and even countries use Bitcoin every day. The public ledger means every transaction is permanently recorded.</div></details>
+      <details><summary><span class="arrow">▶</span> ❌ &nbsp;"It's a bubble that will go to zero"</summary><div class="answer">People have called it a bubble every year since 2011. It's still here. Volatility is real, but Bitcoin has become a trillion-dollar asset class adopted by institutions, corporations, and sovereign wealth funds worldwide.</div></details>
+      <details><summary><span class="arrow">▶</span> ❌ &nbsp;"Bad for the environment"</summary><div class="answer">Over 50% of mining uses renewable energy. Bitcoin mining actually incentivizes green energy development by monetizing stranded energy and methane capture that would otherwise be wasted or flared.</div></details>
+      <details><summary><span class="arrow">▶</span> ❌ &nbsp;"I need to buy a whole Bitcoin"</summary><div class="answer">Bitcoin is divisible to 8 decimal places. You can buy <strong>$10 worth</strong>. The smallest unit is a <em>satoshi</em> = 0.00000001 BTC. You don't need to be rich to start.</div></details>
+      <details><summary><span class="arrow">▶</span> ❌ &nbsp;"It's too late"</summary><div class="answer">Less than 5% of the world's population owns Bitcoin. Adoption is still incredibly early. The best time to learn was 10 years ago. The second best time is right now.</div></details>
+      <details><summary><span class="arrow">▶</span> ❌ &nbsp;"Bitcoin is too volatile to be money"</summary><div class="answer">Volatility decreases over time as market cap grows. Bitcoin's 4-year cycle volatility is declining. It's a <em>store of value</em> first, medium of exchange second — like digital gold with payment rails.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ─── QUEST ─── -->
+<section class="section section-alt" id="quest">
+  <div class="section-container">
+    <div class="section-label">Game</div>
+    <h2 class="section-title">Bitcoin <span class="highlight">Quest</span></h2>
+    <p class="section-desc">Defeat the fiat overlords with Bitcoin knowledge. A pixel RPG where quiz questions = attacks.</p>
+    <div style="text-align:center">
+      <button class="btn btn-primary" onclick="startQuest()">🎮 Launch Quest</button>
+      <p style="font-size:1.15rem;color:var(--text-dim);margin-top:12px">10 levels · 50 quiz questions · 3 zones · Canvas pixel art</p>
+    </div>
+    <div id="questGame" style="display:none;margin-top:24px">
+      <div class="quest-hud">
+        <div class="stat"><span class="lbl">Level</span><span class="val" id="qLevel">1</span></div>
+        <div class="stat"><span class="lbl">HP</span><div class="quest-bar"><div class="fill hp" id="qHpBar" style="width:100%"></div></div><span class="val" id="qHp">40/40</span></div>
+        <div class="stat"><span class="lbl">XP</span><div class="quest-bar"><div class="fill xp" id="qXpBar" style="width:0%"></div></div><span class="val" id="qXp">0/20</span></div>
+        <div class="stat"><span class="lbl">Zone</span><span class="val" id="qZone">Altcoin Swamp</span></div>
+      </div>
+      <canvas id="questCanvas" width="640" height="480"></canvas>
+      <div class="quest-battle" id="questBattle">
+        <div class="boss-name" id="qBossName">⚔️ Pump & Dump King</div>
+        <div style="margin:8px 0;font-size:1.2rem">HP: <span id="qBossHp">25</span>/<span id="qBossMaxHp">25</span> <span class="quest-bar" style="display:inline-block;width:120px;vertical-align:middle"><span class="fill hp" id="qBossHpBar" style="width:100%"></span></span></div>
+        <div class="q-text" id="qBattleQ">Which is the smallest unit of Bitcoin?</div>
+        <div class="q-opts" id="qBattleOpts"></div>
+        <div class="log" id="qBattleLog">⚔️ Choose your attack!</div>
+      </div>
+      <div class="quest-overlay" id="questOverlay">
+        <div class="panel">
+          <h2 id="questOverlayTitle">Game Over</h2>
+          <p id="questOverlayMsg">You were defeated!</p>
+          <button class="btn btn-primary" onclick="resetQuest()">🔄 Try Again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── QUIZ ─── -->
+<section class="section" id="quiz">
+  <div class="section-container fade-in">
+    <div class="section-label">Test Yourself</div>
+    <h2 class="section-title">Bitcoin <span class="highlight">Mastery Quiz</span></h2>
+    <p class="section-desc">10 questions that separate the no-coiner from the Bitcoiner. No cheating! 😉</p>
+    <div id="quizContainer"></div>
+  </div>
+</section>
+
+<!-- ─── BLOG ─── -->
+<section class="section section-alt" id="blog">
+  <div class="section-container">
+    <div class="section-label">Deep Dives</div>
+    <h2 class="section-title">Latest from <span class="highlight">the Trenches</span></h2>
+    <p class="section-desc">Curated guides to level up your Bitcoin knowledge.</p>
+    <div id="blogContainer">
+      <div class="blog-grid">
+        <div class="blog-card fade-in" onclick="showArticle(0)">
+          <div class="blog-card-img" style="background:linear-gradient(135deg,#F7931A,#FFD700)">📦</div>
+          <div class="blog-card-body">
+            <span class="blog-tag">Technical</span>
+            <h3>Understanding UTXOs: The Building Blocks of Bitcoin Transactions</h3>
+            <p>What UTXOs are, how coin control works, and why it matters for privacy.</p>
+          </div>
+        </div>
+        <div class="blog-card fade-in" onclick="showArticle(1)">
+          <div class="blog-card-img" style="background:linear-gradient(135deg,#8B5CF6,#60A5FA)">🔒</div>
+          <div class="blog-card-body">
+            <span class="blog-tag">Privacy</span>
+            <h3>The Complete Guide to Taproot: Bitcoin's Biggest Privacy Upgrade</h3>
+            <p>Schnorr signatures, MAST, and how Taproot changes everything.</p>
+          </div>
+        </div>
+        <div class="blog-card fade-in" onclick="showArticle(2)">
+          <div class="blog-card-img" style="background:linear-gradient(135deg,#00D4AA,#60A5FA)">🪙</div>
+          <div class="blog-card-body">
+            <span class="blog-tag">Advanced</span>
+            <h3>Mastering Coin Control: Why Every Bitcoiner Needs It</h3>
+            <p>Avoid common privacy pitfalls and take control of your UTXOs.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Article containers -->
+      <div id="article0" class="blog-article">
+        <button class="btn btn-secondary" onclick="hideArticle()" style="margin-bottom:16px">← Back to articles</button>
+        <h2>📦 Understanding UTXOs: The Building Blocks of Bitcoin Transactions</h2>
+        <div class="post-body">
+          <p>Every Bitcoin transaction consumes and creates <strong>Unspent Transaction Outputs (UTXOs)</strong>. Think of UTXOs like physical coins — you can't spend half a coin; you spend the whole thing and get change back.</p>
+          <div class="highlight"><strong>Key Insight:</strong> Your Bitcoin wallet doesn't contain a "balance" — it contains a collection of UTXOs that sum to your total.</div>
+          <h4>Why UTXOs Matter</h4>
+          <ul>
+            <li><strong>Privacy:</strong> UTXOs can be linked to you if you combine them carelessly</li>
+            <li><strong>Fees:</strong> More UTXOs = larger transaction = higher fees</li>
+            <li><strong>Coin Control:</strong> Choose <em>which</em> UTXOs to spend for better privacy</li>
+            <li><strong>Dust:</strong> Tiny UTXOs may cost more to spend than they're worth</li>
+          </ul>
+          <h4>Best Practices</h4>
+          <ul>
+            <li>Use coin control features in wallets like Sparrow or Electrum</li>
+            <li>Consolidate UTXOs when fees are low</li>
+            <li>Avoid reusing addresses</li>
+            <li>Label your UTXOs to track their origin</li>
+          </ul>
+        </div>
+      </div>
+      <div id="article1" class="blog-article">
+        <button class="btn btn-secondary" onclick="hideArticle()" style="margin-bottom:16px">← Back to articles</button>
+        <h2>🔒 The Complete Guide to Taproot: Bitcoin's Biggest Privacy Upgrade</h2>
+        <div class="post-body">
+          <p>Activated in November 2021, <strong>Taproot</strong> (BIP 340–342) is Bitcoin's most significant upgrade since SegWit. It introduces Schnorr signatures, MAST, and a new scripting paradigm.</p>
+          <div class="highlight"><strong>Key Insight:</strong> Taproot makes complex transactions look like simple ones on the blockchain, dramatically improving privacy.</div>
+          <h4>What Taproot Changes</h4>
+          <ul>
+            <li><strong>Schnorr Signatures (BIP 340):</strong> Faster, smaller, and enable signature aggregation</li>
+            <li><strong>Taproot (BIP 341):</strong> MAST allows conditional spending without revealing unused conditions</li>
+            <li><strong>Tapscript (BIP 342):</strong> Upgraded scripting language with Schnorr support</li>
+          </ul>
+          <h4>Real-World Impact</h4>
+          <ul>
+            <li>Multisig transactions look identical to single-sig</li>
+            <li>Lightning Network channels benefit from reduced transaction size</li>
+            <li>Enables advanced smart contracts with better privacy</li>
+          </ul>
+        </div>
+      </div>
+      <div id="article2" class="blog-article">
+        <button class="btn btn-secondary" onclick="hideArticle()" style="margin-bottom:16px">← Back to articles</button>
+        <h2>🪙 Mastering Coin Control: Why Every Bitcoiner Needs It</h2>
+        <div class="post-body">
+          <p>When you send Bitcoin, your wallet automatically selects which UTXOs to spend. This <em>coin selection</em> can leak your privacy if you're not careful.</p>
+          <div class="highlight"><strong>Key Insight:</strong> Automatic coin selection often combines UTXOs from different sources, linking them on the blockchain forever.</div>
+          <h4>Coin Control Best Practices</h4>
+          <ul>
+            <li>Use wallets with manual coin selection (Sparrow, Electrum, Blue Wallet)</li>
+            <li>Keep UTXOs from different sources separate</li>
+            <li>Use "coin control" features to pick specific UTXOs</li>
+            <li>Consider "consolidation transactions" during low fee periods</li>
+            <li>Label every UTXO with its origin</li>
+          </ul>
+          <h4>Tools that Support Coin Control</h4>
+          <ul>
+            <li><strong>Sparrow Wallet</strong> — Best-in-class coin control UI</li>
+            <li><strong>Electrum</strong> — Classic, powerful, supports labels</li>
+            <li><strong>Blue Wallet</strong> — Mobile-friendly with basic coin control</li>
+            <li><strong>Bitcoin Core</strong> — Full node with complete UTXO management</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── COMMUNITY ─── -->
+<section class="section" id="community">
+  <div class="section-container fade-in">
+    <div class="section-label">Community</div>
+    <h2 class="section-title">Join the <span class="highlight">Movement</span></h2>
+    <p class="section-desc">Bitcoin is people-powered. Here's the community behind this hub.</p>
+    <div class="community-stats">
+      <div class="community-stat card"><div class="num" id="cMembers">0</div><div class="lbl">Hub Repositories</div></div>
+      <div class="community-stat card"><div class="num" id="cStacked">0</div><div class="lbl">Interactive Tools</div></div>
+      <div class="community-stat card"><div class="num" id="cCountries">0</div><div class="lbl">Glossary Terms</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NEWSLETTER ─── -->
+<section class="section section-alt">
+  <div class="section-container fade-in">
+    <div class="newsletter-box">
+      <h3>📩 Get the Alpha</h3>
+      <p>New tools, articles, and Bitcoin education — delivered to your inbox.</p>
+      <form class="newsletter-form" onsubmit="event.preventDefault();this.querySelector('button').textContent='✓ Subscribed!';setTimeout(()=>this.querySelector('button').textContent='Subscribe',2000)">
+        <input type="email" placeholder="your@email.com" required>
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div style="font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--orange),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">₿ Bitcoin Hub</div>
+      <p>A curated collection of Bitcoin knowledge — from newbies to advanced. Interactive tools, games, glossary, strategies, and community resources for self-guided learning.</p>
+      <p style="margin-top:12px;font-size:1.1rem"><strong>Donate:</strong> <code style="background:var(--border);padding:4px 10px;border-radius:6px;font-size:.9rem;cursor:pointer;word-break:break-all" onclick="navigator.clipboard.writeText('bc1q47tl79lx5ua5hecnsj42d6whgk8hjlqvlv3jh7');this.innerHTML='✓ Copied!'">bc1q47tl79lx5ua5hecnsj42d6whgk8hjlqvlv3jh7</code></p>
+      <div class="footer-social">
+        <a href="https://github.com/heat-a11y" target="_blank" aria-label="GitHub">⌨</a>
+        <a href="https://github.com/heat-a11y/bitcoin-for-newbies" target="_blank" aria-label="Newbies">🌱</a>
+        <a href="https://github.com/heat-a11y/advanced-bitcoiner" target="_blank" aria-label="Advanced">🚀</a>
+      </div>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="#tools">Interactive Tools</a></li>
+        <li><a href="#quest">Bitcoin Quest</a></li>
+        <li><a href="#strategies">Strategies</a></li>
+        <li><a href="#glossary">Glossary</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Learn</h4>
+      <ul>
+        <li><a href="#blog">Articles</a></li>
+        <li><a href="#myths">Myth Debunking</a></li>
+        <li><a href="#compare">BTC vs Money</a></li>
+        <li><a href="https://bitcoin.org" target="_blank">bitcoin.org</a></li>
+        <li><a href="https://lopp.net/bitcoin.html" target="_blank">lopp.net</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Repos</h4>
+      <ul>
+        <li><a href="https://github.com/heat-a11y/bitcoin-for-newbies" target="_blank">Newbies Series</a></li>
+        <li><a href="https://github.com/heat-a11y/intermediate-bitcoin" target="_blank">Intermediate</a></li>
+        <li><a href="https://github.com/heat-a11y/advanced-bitcoiner" target="_blank">Advanced Bitcoiner</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Bitcoin Knowledge Hub. Stack sats, not shit. ₿</p>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  1. PARTICLE CANVAS BACKGROUND
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let w, h;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = document.body.scrollHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  document.addEventListener('scroll', resize);
+
+  const COUNT = 80;
+  for (let i = 0; i < COUNT; i++) {
+    particles.push({
+      x: Math.random() * (w || 1200),
+      y: Math.random() * (h || 2000),
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 2 + 1,
+      a: Math.random() * 0.3 + 0.05
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach((p, i) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0) p.x = w;
+      if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h;
+      if (p.y > h) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(247,147,26,${p.a})`;
+      ctx.fill();
+
+      // Connection lines
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = p.x - particles[j].x;
+        const dy = p.y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(247,147,26,${0.06 * (1 - dist / 120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  2. LIVE PRICE TICKER
+// ═══════════════════════════════════════════════════════════════
+let BTC_PRICE = 62431;
+let btcChange24h = 2.34;
+
+const TICKER_CURRENCIES = [
+  { id: 'bitcoin', sym: '$', code: 'USD' },
+  { id: 'bitcoin', sym: '€', code: 'EUR' },
+  { id: 'bitcoin', sym: '£', code: 'GBP' },
+  { id: 'bitcoin', sym: '¥', code: 'JPY' },
+  { id: 'bitcoin', sym: '₿', code: 'BTC' },
+  { id: 'bitcoin', sym: 'RM', code: 'MYR' },
+  { id: 'bitcoin', sym: 'S$', code: 'SGD' },
+  { id: 'bitcoin', sym: 'A$', code: 'AUD' },
+  { id: 'bitcoin', sym: '₩', code: 'KRW' },
+  { id: 'bitcoin', sym: '₹', code: 'INR' },
+];
+
+function renderTicker() {
+  const track = document.getElementById('tickerTrack');
+  let html = '';
+  // Double the items for seamless scroll
+  for (let repeat = 0; repeat < 2; repeat++) {
+    TICKER_CURRENCIES.forEach(c => {
+      html += `<div class="ticker-item">${c.sym === '₿' ? '₿' : ''}<span class="label">${c.code}</span><span class="value up" data-currency="${c.code}">—</span></div>`;
+    });
+  }
+  track.innerHTML = html;
+}
+renderTicker();
+
+function updateTickerPrices(data) {
+  const btc = data.bitcoin;
+  BTC_PRICE = btc.usd;
+  btcChange24h = btc.usd_24h_change || 2.34;
+
+  TICKER_CURRENCIES.forEach(c => {
+    const price = c.code === 'BTC' ? 1 : (btc[c.code.toLowerCase()] || BTC_PRICE);
+    const items = document.querySelectorAll(`[data-currency="${c.code}"]`);
+    items.forEach(el => {
+      if (c.code === 'BTC') {
+        el.textContent = '₿ 1.00';
+      } else {
+        el.textContent = c.sym + price.toLocaleString('en-US', { maximumFractionDigits: c.code === 'JPY' ? 0 : 2, minimumFractionDigits: c.code === 'JPY' ? 0 : 2 });
+      }
+    });
+  });
+
+  // Update hero stats
+  const el = document.getElementById('statPrice');
+  if (el) el.textContent = '$' + BTC_PRICE.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  const ch = document.getElementById('statChange');
+  if (ch) {
+    ch.textContent = (btcChange24h >= 0 ? '+' : '') + btcChange24h.toFixed(2) + '%';
+    ch.style.color = btcChange24h >= 0 ? '#00D4AA' : '#FF6B6B';
+  }
+  const sup = document.getElementById('statSupply');
+  if (sup) sup.textContent = (btc.circulating_supply ? (btc.circulating_supply / 1e6).toFixed(1) + 'M' : '19.7M');
+
+  // Update converter
+  convertFrom('btc');
+  updateDCA();
+  updateFee();
+  updatePS();
+}
+
+async function fetchPrice() {
+  try {
+    const vs = TICKER_CURRENCIES.filter(c => c.code !== 'BTC').map(c => c.code.toLowerCase()).join(',');
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${vs}&include_24hr_change=true&include_market_cap=true&include_circulating_supply=true`);
+    const data = await res.json();
+    updateTickerPrices(data);
+  } catch(e) {
+    console.log('Price fetch fallback');
+  }
+}
+fetchPrice();
+setInterval(fetchPrice, 60000);
+
+// ═══════════════════════════════════════════════════════════════
+//  3. SATOSHI CONVERTER
+// ═══════════════════════════════════════════════════════════════
+function convertFrom(source) {
+  const btc = document.getElementById('btcInput');
+  const usd = document.getElementById('usdInput');
+  const sat = document.getElementById('satInput');
+  let v;
+  if (source === 'btc') {
+    v = parseFloat(btc.value) || 0;
+    usd.value = (v * BTC_PRICE).toFixed(2);
+    sat.value = Math.round(v * 1e8);
+  } else if (source === 'usd') {
+    v = parseFloat(usd.value) || 0;
+    btc.value = (v / BTC_PRICE).toFixed(8);
+    sat.value = Math.round(v / BTC_PRICE * 1e8);
+  } else if (source === 'sat') {
+    v = parseFloat(sat.value) || 0;
+    btc.value = (v / 1e8).toFixed(8);
+    usd.value = (v / 1e8 * BTC_PRICE).toFixed(2);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  4. DCA CALCULATOR (with conservative growth projection)
+// ═══════════════════════════════════════════════════════════════
+const DCA_ANNUAL_RETURN = 0.08;
+
+function updateDCA() {
+  const amount = parseFloat(document.getElementById('dcaAmount').value) || 100;
+  const freq = document.getElementById('dcaFrequency').value;
+  const months = parseInt(document.getElementById('dcaDuration').value) || 12;
+  document.getElementById('dcaDurationLabel').textContent = months + ' months';
+
+  const payments = freq === 'daily' ? Math.round(months * 30.44) : freq === 'weekly' ? Math.round(months * 4.33) : months;
+  const monthlyRate = Math.pow(1 + DCA_ANNUAL_RETURN, 1/12) - 1;
+  let totalInvested = 0;
+  let totalBtc = 0;
+
+  for (let i = 0; i < payments; i++) {
+    totalInvested += amount;
+    const btcBought = amount / BTC_PRICE;
+    const monthsHeld = (payments - i) / (freq === 'daily' ? 30.44 : freq === 'weekly' ? 4.33 : 1);
+    totalBtc += btcBought * Math.pow(1 + monthlyRate, monthsHeld);
+  }
+
+  const futureValue = totalBtc * BTC_PRICE;
+  const returnAmt = futureValue - totalInvested;
+  const returnPct = (returnAmt / totalInvested) * 100;
+
+  document.getElementById('dcaBtc').textContent = totalBtc.toFixed(8);
+  document.getElementById('dcaInvested').textContent = '$' + totalInvested.toLocaleString('en-US', {maximumFractionDigits:2,minimumFractionDigits:2});
+  document.getElementById('dcaValue').textContent = '$' + futureValue.toLocaleString('en-US', {maximumFractionDigits:2,minimumFractionDigits:2});
+  const ret = document.getElementById('dcaReturn');
+  ret.textContent = (returnAmt >= 0 ? '+' : '') + '$' + returnAmt.toLocaleString('en-US', {maximumFractionDigits:2,minimumFractionDigits:2}) + ' (' + returnPct.toFixed(1) + '%)';
+  ret.className = 'val ' + (returnAmt >= 0 ? 'green' : 'red');
+}
+document.getElementById('dcaAmount').addEventListener('input', updateDCA);
+document.getElementById('dcaFrequency').addEventListener('change', updateDCA);
+document.getElementById('dcaDuration').addEventListener('input', updateDCA);
+
+// ═══════════════════════════════════════════════════════════════
+//  5. POSITION SIZER
+// ═══════════════════════════════════════════════════════════════
+function updatePS() {
+  const account = parseFloat(document.getElementById('psAccount').value) || 10000;
+  const riskPct = parseFloat(document.getElementById('psRisk').value) || 1;
+  const stopPct = parseFloat(document.getElementById('psStop').value) || 5;
+  const entry = parseFloat(document.getElementById('psEntry').value) || BTC_PRICE;
+
+  const riskAmount = account * (riskPct / 100);
+  const positionValue = riskAmount / (stopPct / 100);
+  const btc = positionValue / entry;
+
+  document.getElementById('psBtc').textContent = btc.toFixed(8) + ' BTC';
+  document.getElementById('psValue').textContent = '$' + positionValue.toLocaleString('en-US', {maximumFractionDigits:2,minimumFractionDigits:2});
+  document.getElementById('psRiskAmount').textContent = '$' + riskAmount.toLocaleString('en-US', {maximumFractionDigits:2,minimumFractionDigits:2});
+}
+['psAccount','psRisk','psStop','psEntry'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updatePS);
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  6. FEE ESTIMATOR
+// ═══════════════════════════════════════════════════════════════
+let selectedFeeRate = 30;
+
+function selectFee(el, rate) {
+  document.querySelectorAll('.fee-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('feeCustomRow').style.display = rate === -1 ? 'flex' : 'none';
+  selectedFeeRate = rate === -1 ? (parseInt(document.getElementById('feeCustom').value) || 50) : rate;
+  updateFee();
+}
+document.getElementById('feeCustom').addEventListener('input', function() {
+  if (document.querySelector('.fee-opt.active')?.dataset?.rate == -1) {
+    selectedFeeRate = parseInt(this.value) || 50;
+    updateFee();
+  }
+});
+document.getElementById('feeVbytes').addEventListener('input', function() {
+  document.getElementById('feeVbytesLabel').textContent = this.value;
+  updateFee();
+});
+
+function updateFee() {
+  const vbytes = parseInt(document.getElementById('feeVbytes').value) || 140;
+  const sats = vbytes * selectedFeeRate;
+  const usd = (sats / 1e8) * BTC_PRICE;
+  document.getElementById('feeTotal').textContent = sats.toLocaleString() + ' sats';
+  document.getElementById('feeUsd').textContent = '$' + usd.toFixed(2);
+  document.getElementById('feeRate').textContent = selectedFeeRate + ' sat/vB';
+}
+updateFee();
+
+// ═══════════════════════════════════════════════════════════════
+//  7. HALVING COUNTDOWN
+// ═══════════════════════════════════════════════════════════════
+function updateHalving() {
+  const target = new Date('2028-04-16T00:00:00Z').getTime();
+  const now = Date.now();
+  const diff = Math.max(0, target - now);
+
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  const blocks = Math.floor(diff / 600000);
+
+  document.getElementById('halvDays').textContent = days;
+  document.getElementById('halvHours').textContent = String(hours).padStart(2,'0');
+  document.getElementById('halvMins').textContent = String(mins).padStart(2,'0');
+  document.getElementById('halvSecs').textContent = String(secs).padStart(2,'0');
+  document.getElementById('halvBlocks').textContent = blocks.toLocaleString();
+}
+updateHalving();
+setInterval(updateHalving, 1000);
+
+// ═══════════════════════════════════════════════════════════════
+//  8. GLOSSARY
+// ═══════════════════════════════════════════════════════════════
+const GLOSSARY = {
+  A: [
+    { term: 'Address', def: 'A Bitcoin address is a string of letters and numbers that identifies where Bitcoin can be sent. Modern addresses start with bc1 (Bech32).', tags: ['Basic'] },
+    { term: 'ASIC', def: 'Application-Specific Integrated Circuit — specialized hardware designed solely for mining Bitcoin. Much more efficient than GPUs.', tags: ['Mining'] },
+    { term: 'ATH', def: 'All-Time High — the highest price Bitcoin has ever reached.', tags: ['Trading'] },
+  ],
+  B: [
+    { term: 'Bech32', def: 'A native SegWit address format starting with bc1. Lower fees, better error detection. The standard for modern Bitcoin addresses.', tags: ['Technical'] },
+    { term: 'Bitcoin', def: 'The world\'s first decentralized digital currency, created by Satoshi Nakamoto in 2009. Peer-to-peer electronic cash without a central authority.', tags: ['Core'] },
+    { term: 'Block', def: 'A container holding a batch of Bitcoin transactions. Each block is linked to the previous one, forming the blockchain.', tags: ['Basic'] },
+    { term: 'Blockchain', def: 'A distributed, immutable ledger of all Bitcoin transactions, maintained by thousands of nodes worldwide.', tags: ['Core'] },
+    { term: 'Block Height', def: 'The number of blocks preceding a given block in the blockchain. Genesis block = height 0.', tags: ['Basic'] },
+    { term: 'Block Reward', def: 'The amount of new Bitcoin created in each block (currently 3.125 BTC) plus transaction fees, awarded to the miner.', tags: ['Mining'] },
+    { term: 'BTC', def: 'The ticker symbol for Bitcoin, used on exchanges and trading platforms.', tags: ['Basic'] },
+  ],
+  C: [
+    { term: 'Change Address', def: 'An address created by your wallet to receive the "change" from a transaction when you don\'t spend the entire UTXO.', tags: ['Privacy'] },
+    { term: 'Coin Control', def: 'The practice of manually selecting which UTXOs to spend in a transaction, improving privacy and fee management.', tags: ['Privacy', 'Advanced'] },
+    { term: 'Cold Storage', def: 'Keeping Bitcoin private keys completely offline (e.g., hardware wallet, paper wallet) for maximum security.', tags: ['Security'] },
+    { term: 'Confirmation', def: 'When a transaction is included in a block, it has 1 confirmation. Each subsequent block adds another. More confirmations = more finality.', tags: ['Basic'] },
+    { term: 'Consensus', def: 'The mechanism by which all Bitcoin nodes agree on the state of the blockchain. Bitcoin uses Nakamoto Consensus (PoW + longest chain).', tags: ['Core'] },
+  ],
+  D: [
+    { term: 'DCA', def: 'Dollar-Cost Average — investing a fixed amount at regular intervals regardless of price. Reduces the impact of volatility.', tags: ['Strategy'] },
+    { term: 'Difficulty', def: 'A measure of how hard it is to find a new Bitcoin block. Adjusts every 2016 blocks to maintain ~10 minute block intervals.', tags: ['Mining'] },
+    { term: 'Dust', def: 'Tiny UTXOs that cost more to spend than they\'re worth in fees. Usually amounts below ~500 sats.', tags: ['Technical'] },
+  ],
+  E: [
+    { term: 'Elliptic Curve Cryptography', def: 'The mathematical foundation of Bitcoin\'s security. Bitcoin uses the secp256k1 curve for generating public/private key pairs.', tags: ['Technical'] },
+    { term: 'Exchange', def: 'A platform where you can buy, sell, and trade Bitcoin for other currencies (e.g., Strike, Coinbase, Kraken, Relai).', tags: ['Basic'] },
+  ],
+  F: [
+    { term: 'Fees', def: 'Transaction fees paid to miners for including your transaction in a block. Higher fees = faster confirmation. Measured in sat/vB.', tags: ['Basic'] },
+    { term: 'FOMO', def: 'Fear Of Missing Out — the emotional urge to buy when price is rapidly rising. Usually a bad time to buy.', tags: ['Psychology'] },
+    { term: 'Fork', def: 'When the blockchain splits into two paths. Soft forks are backwards-compatible upgrades; hard forks create a new asset (e.g., Bitcoin Cash).', tags: ['Technical'] },
+    { term: 'Full Node', def: 'A computer that validates all Bitcoin transactions and blocks according to consensus rules. Essential for network decentralization.', tags: ['Technical'] },
+  ],
+  G: [
+    { term: 'Genesis Block', def: 'The very first Bitcoin block, mined by Satoshi Nakamoto on January 3, 2009. Contains the famous message about bank bailouts.', tags: ['Core'] },
+  ],
+  H: [
+    { term: 'Halving', def: 'An event every ~210,000 blocks (~4 years) that cuts the block reward in half. Ensures Bitcoin\'s disinflationary supply schedule.', tags: ['Core', 'Mining'] },
+    { term: 'Hardware Wallet', def: 'A dedicated device that stores private keys offline. Ledger, Trezor, Coldcard, and BitBox are popular options.', tags: ['Security'] },
+    { term: 'Hashrate', def: 'The total computational power securing the Bitcoin network. Measured in EH/s (exahashes per second). Higher = more secure.', tags: ['Mining'] },
+    { term: 'HD Wallet', def: 'Hierarchical Deterministic wallet — generates all addresses from a single seed phrase. BIP-32 standard.', tags: ['Technical'] },
+    { term: 'HODL', def: 'A misspelling of "hold" that became a meme. Means holding Bitcoin long-term regardless of price volatility. Hold On for Dear Life.', tags: ['Culture'] },
+  ],
+  I: [
+    { term: 'Inputs', def: 'References to UTXOs being spent in a Bitcoin transaction. Each input must be signed with the corresponding private key.', tags: ['Technical'] },
+  ],
+  K: [
+    { term: 'Keys (Private)', def: 'A secret number that allows you to spend your Bitcoin. Never share it. Whoever has the private key controls the Bitcoin.', tags: ['Basic', 'Security'] },
+    { term: 'Keys (Public)', def: 'Derived from the private key, used to generate addresses. Can be shared safely. Part of the elliptic curve key pair.', tags: ['Basic', 'Security'] },
+  ],
+  L: [
+    { term: 'Lightning Network', def: 'A Layer 2 protocol built on top of Bitcoin for instant, low-fee payments. Enables microtransactions and real-world spending.', tags: ['Layer 2', 'Advanced'] },
+    { term: 'Liquidity', def: 'The ability to buy or sell Bitcoin without causing significant price impact. Deep order books = high liquidity.', tags: ['Trading'] },
+  ],
+  M: [
+    { term: 'Mempool', def: 'The pool of unconfirmed transactions waiting to be included in a block. Miners select transactions from here based on fee rates.', tags: ['Technical'] },
+    { term: 'Merkle Tree', def: 'A data structure that efficiently summarizes all transactions in a block. Enables Simplified Payment Verification (SPV).', tags: ['Technical'] },
+    { term: 'Miner', def: 'A participant running specialized hardware (ASICs) to secure the network by solving proof-of-work puzzles.', tags: ['Mining'] },
+    { term: 'Mnemonic/Seed Phrase', def: 'A 12 or 24-word backup of your wallet. Write it down on paper, store it safely. Never enter it on a website or take a photo.', tags: ['Security'] },
+    { term: 'Multisig', def: 'Multi-signature — requires multiple private keys to authorize a transaction. Adds security by distributing trust.', tags: ['Advanced', 'Security'] },
+  ],
+  N: [
+    { term: 'Node', def: 'Any computer running Bitcoin Core that validates and relays transactions and blocks. Full nodes enforce the consensus rules.', tags: ['Technical'] },
+    { term: 'Nonce', def: 'A number used once by miners when attempting to find a valid block hash. Incremented billions of times per second in mining.', tags: ['Mining'] },
+    { term: 'npub', def: 'A Nostr public key. Not directly Bitcoin, but commonly used in the Bitcoin ecosystem for decentralized identity.', tags: ['Nostr'] },
+  ],
+  O: [
+    { term: 'Output', def: 'A UTXO created by a transaction. Contains an amount of Bitcoin and a locking script that specifies who can spend it.', tags: ['Technical'] },
+  ],
+  P: [
+    { term: 'Paper Wallet', def: 'A piece of paper with your private key and address printed on it. Cold storage, but fragile. Better alternatives exist today.', tags: ['Security'] },
+    { term: 'Proof of Work', def: 'The consensus mechanism requiring miners to expend computational energy to secure the network. The "work" in Bitcoin.', tags: ['Core'] },
+    { term: 'PSBT', def: 'Partially Signed Bitcoin Transaction — a standardized format for multi-party transaction signing. BIP-174.', tags: ['Technical'] },
+  ],
+  R: [
+    { term: 'RBF', def: 'Replace-By-Fee — a feature that allows replacing an unconfirmed transaction with one paying a higher fee. BIP-125.', tags: ['Technical'] },
+    { term: 'Runes', def: 'A Bitcoin-native token protocol that allows creating fungible tokens on the Bitcoin blockchain using UTXOs.', tags: ['Protocol'] },
+  ],
+  S: [
+    { term: 'Satoshi (SAT)', def: 'The smallest unit of Bitcoin: 1 sat = 0.00000001 BTC. Named after the creator. 100 million sats = 1 Bitcoin.', tags: ['Basic'] },
+    { term: 'SegWit', def: 'Segregated Witness — a soft fork that separated transaction signatures from transaction data. Reduced fees, enabled Lightning. Activated 2017.', tags: ['Technical'] },
+    { term: 'Self-Custody', def: 'Holding your own private keys rather than trusting a third party. "Not your keys, not your coins."', tags: ['Basic'] },
+    { term: 'Signature', def: 'A cryptographic proof that you own the private key without revealing it. Used to authorize Bitcoin transactions.', tags: ['Technical'] },
+    { term: 'Soft Fork', def: 'A backwards-compatible protocol upgrade. Old nodes still see new blocks as valid. SegWit and Taproot were soft forks.', tags: ['Technical'] },
+  ],
+  T: [
+    { term: 'Taproot', def: 'Bitcoin\'s 2021 upgrade (BIP 340-342) introducing Schnorr signatures, MAST, and improved privacy. Makes complex txs look simple.', tags: ['Technical', 'Privacy'] },
+    { term: 'Transaction', def: 'A transfer of Bitcoin from one address to another, recorded on the blockchain. Contains inputs and outputs.', tags: ['Basic'] },
+  ],
+  U: [
+    { term: 'UTXO', def: 'Unspent Transaction Output — the Bitcoin equivalent of "change". Your wallet balance is the sum of all UTXOs belonging to your addresses.', tags: ['Technical', 'Advanced'] },
+  ],
+  V: [
+    { term: 'Vanity Address', def: 'A Bitcoin address containing a specific pattern you chose (e.g., starting with your name). Generated by brute force.', tags: ['Culture'] },
+  ],
+  W: [
+    { term: 'Wallet', def: 'Software or hardware that manages your Bitcoin private keys and addresses. Creates and broadcasts transactions.', tags: ['Basic'] },
+    { term: 'Whale', def: 'An entity holding a large amount of Bitcoin (typically 1,000+ BTC). Whale movements can influence market sentiment.', tags: ['Trading'] },
+  ],
+  X: [
+    { term: 'xpub', def: 'Extended public key — allows generating all public keys in an HD wallet without exposing private keys. Used for watch-only wallets.', tags: ['Technical'] },
+  ],
+  Z: [
+    { term: 'Zero-Conf', def: 'Zero-confirmation transaction — a transaction that hasn\'t been included in a block yet. Considered unconfirmed and reversible.', tags: ['Technical'] },
+  ],
+};
+function renderGlossaryCards() {
+  const container = document.getElementById('glossaryCards');
+  let html = '';
+  Object.keys(GLOSSARY).sort().forEach(letter => {
+    GLOSSARY[letter].forEach((item, idx) => {
+      const uid = 'g-' + letter + '-' + idx;
+      const tags = item.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      html += `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .25s ease;overflow:hidden" onclick="toggleGlossaryCard('${uid}')" onmouseover="this.style.borderColor='var(--border-orange)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="padding:14px 16px;font-weight:600;font-size:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span>${item.term}</span>
+          <span style="font-size:1rem;color:var(--text-dim);transition:transform .25s" id="${uid}-arrow">▼</span>
+        </div>
+        <div id="${uid}" style="max-height:0;overflow:hidden;transition:max-height .4s ease, padding .4s ease">
+          <div style="padding:0 16px 14px;font-size:1.15rem;color:var(--text-dim);line-height:1.6;border-top:1px solid var(--border);padding-top:10px">
+            ${item.def}
+            <div style="margin-top:6px">${tags}</div>
+          </div>
+        </div>
+      </div>`;
+    });
+  });
+  container.innerHTML = html;
+}
+renderGlossaryCards();
+
+let glossaryOpenId = null;
+function toggleGlossaryCard(id) {
+  if (glossaryOpenId && glossaryOpenId !== id) {
+    const prev = document.getElementById(glossaryOpenId);
+    const prevArrow = document.getElementById(glossaryOpenId + '-arrow');
+    if (prev) { prev.style.maxHeight = '0'; if(prevArrow) prevArrow.style.transform = 'rotate(0deg)'; }
+  }
+  const el = document.getElementById(id);
+  const arrow = document.getElementById(id + '-arrow');
+  if (el.style.maxHeight !== '0px' && el.style.maxHeight !== '') {
+    el.style.maxHeight = '0';
+    if (arrow) arrow.style.transform = 'rotate(0deg)';
+    glossaryOpenId = null;
+  } else {
+    el.style.maxHeight = el.scrollHeight + 40 + 'px';
+    if (arrow) arrow.style.transform = 'rotate(180deg)';
+    glossaryOpenId = id;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  9. QUIZ
+// ═══════════════════════════════════════════════════════════════
+const QUIZ_DATA = [
+  { q: 'What is the maximum supply of Bitcoin?', opts: ['21 million', '18 million', '25 million', 'Unlimited'], correct: 0, explain: 'Only 21 million BTC will ever be mined. Scarcity by design.' },
+  { q: 'What is a UTXO?', opts: ['A type of altcoin', 'Unspent Transaction Output', 'A mining pool', 'A hardware wallet brand'], correct: 1, explain: 'UTXOs are the building blocks of Bitcoin transactions — like digital coins.' },
+  { q: 'What does the mempool hold?', opts: ['Mined blocks', 'Unconfirmed transactions', 'Private keys', 'Mining rewards'], correct: 1, explain: 'The mempool is where pending transactions wait for miners to pick them up.' },
+  { q: 'What is the Bitcoin halving?', opts: ['A price crash every 4 years', 'Block reward cut in half every 210,000 blocks', 'A network shutdown', 'A code update'], correct: 1, explain: 'Halving reduces new supply by 50% every ~4 years. Next is 2028.' },
+  { q: 'What does HODL mean?', opts: ['A trading strategy', 'Hold On for Dear Life', 'A type of wallet', 'A mining algorithm'], correct: 1, explain: 'HODL started as a typo and became the battle cry of long-term Bitcoiners.' },
+  { q: 'What is the smallest unit of Bitcoin?', opts: ['Microbit', 'Satoshi', 'Nakamoto', 'Wei'], correct: 1, explain: '1 satoshi = 0.00000001 BTC. 100 million sats = 1 Bitcoin.' },
+  { q: 'What is a node?', opts: ['A mining device', 'A computer validating the blockchain', 'A trading bot', 'A wallet app'], correct: 1, explain: 'Nodes enforce consensus rules without needing to trust anyone.' },
+  { q: 'What does "not your keys, not your coins" mean?', opts: ['You should memorize your keys', 'Without private keys, you don\'t own the Bitcoin', 'Keys are passwords', 'Exchanges are safer'], correct: 1, explain: 'If a third party holds your keys, they control your coins — not you.' },
+  { q: 'What is the current block reward?', opts: ['6.25 BTC', '3.125 BTC', '12.5 BTC', '1 BTC'], correct: 1, explain: 'After the 2024 halving, the reward dropped from 6.25 to 3.125 BTC per block.' },
+  { q: 'What is Taproot?', opts: ['A mining pool', 'A wallet type', 'Bitcoin\'s 2021 privacy upgrade', 'A stablecoin'], correct: 2, explain: 'Taproot brought Schnorr signatures and MAST, making complex transactions look simple.' },
+];
+
+let quizState = { idx: 0, answers: [], submitted: false };
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  quizState = { idx: 0, answers: new Array(QUIZ_DATA.length).fill(-1), submitted: false };
+  container.innerHTML = renderQuizInner();
+}
+
+function renderQuizInner() {
+  const { idx, answers, submitted } = quizState;
+  const total = QUIZ_DATA.length;
+  const item = QUIZ_DATA[idx];
+
+  // Progress dots
+  let dots = '';
+  for (let i = 0; i < total; i++) {
+    let cls = 'quiz-dot';
+    if (submitted) {
+      if (answers[i] === QUIZ_DATA[i].correct) cls += ' done';
+      else if (answers[i] !== -1) cls += ' wrong';
+    } else {
+      if (answers[i] !== -1) cls += ' done';
+      if (i === idx) cls += ' active';
+    }
+    dots += `<span class="${cls}"></span>`;
+  }
+
+  // Options
+  let opts = '';
+  item.opts.forEach((o, i) => {
+    let cls = 'quiz-opt';
+    if (submitted) {
+      if (i === item.correct) cls += ' correct';
+      else if (i === answers[idx] && i !== item.correct) cls += ' wrong';
+    } else if (answers[idx] === i) {
+      cls += ' selected';
+    }
+    opts += `<button class="${cls}" onclick="selectQuiz(${i})" ${submitted ? 'disabled' : ''}>${o}</button>`;
+  });
+
+  let nav = '';
+  if (!submitted) {
+    nav = `<div class="quiz-nav">
+      <button class="btn btn-secondary" onclick="prevQuiz()" ${idx === 0 ? 'disabled style="opacity:.4"' : ''}>← Prev</button>
+      ${idx < total - 1 ? `<button class="btn btn-primary" onclick="nextQuiz()">Next →</button>` : `<button class="btn btn-primary" onclick="submitQuiz()">Submit ✓</button>`}
+    </div>`;
+  }
+
+  if (!submitted) {
+    return `<div class="quiz-progress">${dots}</div>
+      <div class="quiz-question">
+        <div class="q-num">Question ${idx + 1} / ${total}</div>
+        <div class="q-text">${item.q}</div>
+        <div class="quiz-options">${opts}</div>
+      </div>${nav}`;
+  } else {
+    // Results
+    const score = answers.filter((a, i) => a === QUIZ_DATA[i].correct).length;
+    let msg = '';
+    if (score === total) msg = '🎉 Perfect score! You\'re a true Bitcoiner!';
+    else if (score >= 7) msg = '👏 Great job! Almost there!';
+    else if (score >= 4) msg = '💪 Good start! Keep learning!';
+    else msg = '📚 Keep studying! Rome wasn\'t built in a day.';
+
+    let review = '';
+    QUIZ_DATA.forEach((q, i) => {
+      const ua = answers[i];
+      const isCorrect = ua === q.correct;
+      review += `<div class="review-item">
+        <div class="r-q">${isCorrect ? '✅' : '❌'} ${q.q}</div>
+        <div class="r-a">${ua === -1 ? 'Not answered. ' : ''}${q.explain}</div>
+      </div>`;
+    });
+
+    return `<div class="quiz-progress">${dots}</div>
+      <div class="quiz-result">
+        <div class="score">${score}/${total}</div>
+        <div class="msg">${msg}</div>
+        <button class="btn btn-primary" onclick="renderQuiz()">🔄 Try Again</button>
+        <div class="review">${review}</div>
+      </div>`;
+  }
+}
+
+function selectQuiz(i) {
+  if (quizState.submitted) return;
+  quizState.answers[quizState.idx] = i;
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = renderQuizInner();
+}
+
+function nextQuiz() {
+  if (quizState.idx < QUIZ_DATA.length - 1) {
+    quizState.idx++;
+    document.getElementById('quizContainer').innerHTML = renderQuizInner();
+  }
+}
+
+function prevQuiz() {
+  if (quizState.idx > 0) {
+    quizState.idx--;
+    document.getElementById('quizContainer').innerHTML = renderQuizInner();
+  }
+}
+
+function submitQuiz() {
+  quizState.submitted = true;
+  document.getElementById('quizContainer').innerHTML = renderQuizInner();
+}
+renderQuiz();
+
+// ═══════════════════════════════════════════════════════════════
+//  10. BLOG
+// ═══════════════════════════════════════════════════════════════
+function showArticle(idx) {
+  document.querySelectorAll('.blog-article').forEach(a => a.classList.remove('show'));
+  document.querySelector('.blog-grid').style.display = 'none';
+  document.getElementById('article' + idx).classList.add('show');
+}
+
+function hideArticle() {
+  document.querySelectorAll('.blog-article').forEach(a => a.classList.remove('show'));
+  document.querySelector('.blog-grid').style.display = 'grid';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  11. COMMUNITY COUNTERS (Animated)
+// ═══════════════════════════════════════════════════════════════
+function animateCounter(el, target) {
+  let current = 0;
+  const step = Math.ceil(target / 60);
+  const interval = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      current = target;
+      clearInterval(interval);
+    }
+    el.textContent = current.toLocaleString() + '+';
+  }, 30);
+}
+setTimeout(() => {
+  animateCounter(document.getElementById('cMembers'), 3);
+  animateCounter(document.getElementById('cStacked'), 10);
+  animateCounter(document.getElementById('cCountries'), 52);
+}, 500);
+
+// ═══════════════════════════════════════════════════════════════
+//  12. BITCOIN QUEST — Full Canvas RPG
+// ═══════════════════════════════════════════════════════════════
+const QUEST_QUESTIONS = [
+  { q: 'Who created Bitcoin?', opts: ['Vitalik Buterin', 'Satoshi Nakamoto', 'Hal Finney', 'Nick Szabo'], c: 1 },
+  { q: 'Smallest unit of Bitcoin?', opts: ['Microbit', 'Satoshi', 'Nakamoto', 'Wei'], c: 1 },
+  { q: 'Year Bitcoin launched?', opts: ['2007', '2008', '2009', '2010'], c: 2 },
+  { q: 'Max supply of Bitcoin?', opts: ['18 million', '21 million', '25 million', 'Unlimited'], c: 1 },
+  { q: 'UTXO stands for?', opts: ['Unified Transaction X Output', 'Unspent Transaction Output', 'Universal Token Exchange Option', 'Unique Transaction Order'], c: 1 },
+  { q: 'Bitcoin consensus mechanism?', opts: ['Proof of Stake', 'Proof of Work', 'DPoS', 'PoA'], c: 1 },
+  { q: 'Halving occurs every?', opts: ['1 year', '2 years', '4 years', '10 years'], c: 2 },
+  { q: 'What is the mempool?', opts: ['A mining pool', 'Unconfirmed tx pool', 'A wallet type', 'A consensus mechanism'], c: 1 },
+  { q: 'Private key is?', opts: ['Exchange password', 'Secret to spend BTC', 'Wallet address', 'Mining reward'], c: 1 },
+  { q: 'Current block reward?', opts: ['6.25 BTC', '3.125 BTC', '12.5 BTC', '1 BTC'], c: 1 },
+  { q: 'HODL means?', opts: ['High Order Data Link', 'Hold On for Dear Life', 'Heavy Order Digital Ledger', 'Hybrid On-chain Data Layer'], c: 1 },
+  { q: 'What is Taproot?', opts: ['A mining algorithm', 'Bitcoin 2021 upgrade', 'A hardware wallet', 'A stablecoin'], c: 1 },
+  { q: 'What is a node?', opts: ['A mining device', 'A validating computer', 'A trading bot', 'An exchange'], c: 1 },
+  { q: 'What is Lightning Network?', opts: ['A new crypto', 'A Layer 2 payment protocol', 'A mining pool', 'A wallet brand'], c: 1 },
+  { q: 'Not your keys, not your ___?', opts: ['money', 'coins', 'bank', 'wallet'], c: 1 },
+  { q: 'Hardware wallet is?', opts: ['A software app', 'Offline device for keys', 'A mining rig', 'An exchange account'], c: 1 },
+  { q: 'Bitcoin whitepaper author?', opts: ['Hal Finney', 'Satoshi Nakamoto', 'Nick Szabo', 'Adam Back'], c: 1 },
+  { q: 'Seed phrase is?', opts: ['A plant name', '12-24 word backup', 'A password', 'A private key'], c: 1 },
+  { q: 'Difficulty adjusts every?', opts: ['100 blocks', '2016 blocks', '1000 blocks', '1 year'], c: 1 },
+  { q: 'SegWit stands for?', opts: ['Segmented Witness', 'Segregated Witness', 'Secure Witness', 'Simple Witness'], c: 1 },
+  { q: 'Multisig requires?', opts: ['Multiple signatures', 'Single key', 'Exchange approval', 'Bank auth'], c: 0 },
+  { q: 'On-chain analysis studies?', opts: ['Price charts', 'Blockchain data', 'Exchange data', 'Mining data'], c: 1 },
+  { q: 'Coinbase tx is?', opts: ['Exchange tx', 'First tx in block (miner reward)', 'Altcoin', 'Exchange fee'], c: 1 },
+  { q: 'A fork is?', opts: ['Dev tool', 'Blockchain split', 'Wallet type', 'Mining method'], c: 1 },
+  { q: 'Full node does what?', opts: ['Only mines', 'Validates all rules', 'Light wallet', 'Exchange node'], c: 1 },
+  { q: 'Mining secures?', opts: ['Only coins', 'Transactions + network', 'Exchange', 'Wallets'], c: 1 },
+  { q: 'Bech32 starts with?', opts: ['1', '3', 'bc1', 'tb1'], c: 2 },
+  { q: 'Tx contains?', opts: ['Inputs + outputs', 'Only amount', 'Username', 'Password'], c: 0 },
+  { q: 'What is a PSBT?', opts: ['Private Signed Block Tool', 'Partially Signed Bitcoin Transaction', 'Public Signing Blockchain Term', 'Payment Settlement Bridge Token'], c: 1 },
+  { q: 'Change address receives?', opts: ['Donations', 'Tx change', 'Exchange funds', 'Mining reward'], c: 1 },
+  { q: 'Coin control lets you?', opts: ['Control government', 'Select UTXOs manually', 'Control exchange', 'Control mining'], c: 1 },
+  { q: 'RBF means?', opts: ['Really Big Fee', 'Replace-By-Fee', 'Return Bitcoin Fee', 'Reduced Block Fee'], c: 1 },
+  { q: 'PoW requires?', opts: ['Staking', 'Computational energy', 'Network vote', 'Permit'], c: 1 },
+  { q: 'Genesis block is?', opts: ['First block ever', 'Empty block', 'Test block', 'Last block'], c: 0 },
+  { q: 'Hashrate measures?', opts: ['Block speed', 'Mining power', 'Tx speed', 'Latency'], c: 1 },
+  { q: 'Blockchain is?', opts: ['Chain of tx blocks', 'Mining DB', 'Exchange ledger', 'Wallet app'], c: 0 },
+  { q: 'Self-custody means?', opts: ['Exchange storage', 'Holding own keys', 'Gov custody', 'Bank storage'], c: 1 },
+  { q: 'Cold wallet is?', opts: ['Online wallet', 'Offline storage', 'Hot wallet', 'Exchange'], c: 1 },
+  { q: 'Hot wallet is?', opts: ['Offline', 'Internet-connected', 'Paper', 'Hardware'], c: 1 },
+  { q: 'Fiat money is?', opts: ['Bitcoin', 'Government currency', 'Gold', 'Stock'], c: 1 },
+  { q: 'Inflation means?', opts: ['Lower prices', 'Less purchasing power', 'More goods', 'Cheaper'], c: 1 },
+  { q: 'Whale is?', opts: ['Sea animal', 'Large BTC holder', 'Mining pool', 'Exchange'], c: 1 },
+  { q: 'FOMO is?', opts: ['Fear of missing out', 'Trading strategy', 'Wallet type', 'Mining term'], c: 0 },
+  { q: 'Bear market = ?', opts: ['Rising prices', 'Falling prices', 'Stable', 'No trading'], c: 1 },
+  { q: 'Bull market = ?', opts: ['Falling', 'Rising prices', 'Stable', 'Low volatility'], c: 1 },
+  { q: 'Satoshi is?', opts: ['A creator', 'Smallest BTC unit', 'A wallet', 'An exchange'], c: 1 },
+  { q: 'P2PKH address starts with?', opts: ['1', '3', 'bc1', 'tb1'], c: 0 },
+  { q: 'P2SH address starts with?', opts: ['1', '3', 'bc1', 'tb1'], c: 1 },
+  { q: 'Soft fork is?', opts: ['Breaking change', 'Backward-compatible', 'New coin', 'Hard split'], c: 1 },
+  { q: 'Hard fork creates?', opts: ['New upgrade', 'New asset/coin', 'Bug fix', 'Wallet update'], c: 1 },
+];
+
+const BOSSES = [
+  { name: 'Pump & Dump King', hp: 25, atk: 3, zone: 'Altcoin Swamp' },
+  { name: 'Rugpull Rick', hp: 35, atk: 5, zone: 'Altcoin Swamp' },
+  { name: 'FOMO Goblin', hp: 45, atk: 7, zone: 'Altcoin Swamp' },
+  { name: 'Commercial Banker', hp: 55, atk: 8, zone: 'Fiat Factory' },
+  { name: 'Inflation Spectre', hp: 65, atk: 9, zone: 'Fiat Factory' },
+  { name: 'Reserve Phantom', hp: 75, atk: 10, zone: 'Fiat Factory' },
+  { name: 'Central Planner', hp: 85, atk: 11, zone: 'The Citadel' },
+  { name: 'The Money Printer', hp: 100, atk: 13, zone: 'The Citadel' },
+  { name: 'Whale Manipulator', hp: 120, atk: 15, zone: 'The Citadel' },
+  { name: 'Federal Reserve Chairman', hp: 150, atk: 18, zone: 'The Citadel' },
+];
+
+let qGame = null;
+
+function startQuest() {
+  const el = document.getElementById('questGame');
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  qGame = {
+    level: 0, hp: 40, maxHp: 40, xp: 0, xpNext: 20,
+    atk: 8, def: 2,
+    qBank: [...QUEST_QUESTIONS].sort(() => Math.random() - 0.5),
+    qIdx: 0, bossHp: 0, bossMaxHp: 0,
+    state: 'overworld', playerX: 320, playerY: 380,
+    keys: {}, battleAnswered: false,
+  };
+  updateQuestHud();
+  questLoop();
+}
+
+function questLoop() {
+  const canvas = document.getElementById('questCanvas');
+  const ctx = canvas.getContext('2d');
+  const COLS = 20, ROWS = 15, TILE = 32;
+  const ZONES = {
+    'Altcoin Swamp': ['#1a3a1a','#2a5a2a','#1a4a2a','#3a6a3a'],
+    'Fiat Factory': ['#3a3a3a','#4a4a4a','#2a2a2a','#5a5a5a'],
+    'The Citadel': ['#1a1a3a','#2a2a5a','#3a1a3a','#4a2a5a'],
+  };
+  const KEY_UP = 0, KEY_DOWN = 1, KEY_LEFT = 2, KEY_RIGHT = 3;
+  const dx = [0, 0, -1, 1], dy = [-1, 1, 0, 0];
+  let pressed = [false, false, false, false];
+
+  document.onkeydown = function(e) {
+    const k = e.key;
+    if (['ArrowUp','w','W'].includes(k)) pressed[KEY_UP] = true;
+    if (['ArrowDown','s','S'].includes(k)) pressed[KEY_DOWN] = true;
+    if (['ArrowLeft','a','A'].includes(k)) pressed[KEY_LEFT] = true;
+    if (['ArrowRight','d','D'].includes(k)) pressed[KEY_RIGHT] = true;
+    e.preventDefault();
+  };
+  document.onkeyup = function(e) {
+    const k = e.key;
+    if (['ArrowUp','w','W'].includes(k)) pressed[KEY_UP] = false;
+    if (['ArrowDown','s','S'].includes(k)) pressed[KEY_DOWN] = false;
+    if (['ArrowLeft','a','A'].includes(k)) pressed[KEY_LEFT] = false;
+    if (['ArrowRight','d','D'].includes(k)) pressed[KEY_RIGHT] = false;
+  };
+
+  function frame() {
+    if (!qGame || qGame.state === 'won' || qGame.state === 'lost') return;
+    const zoneColor = ZONES[BOSSES[qGame.level].zone] || ZONES['Altcoin Swamp'];
+    const SPEED = 2;
+
+    if (qGame.state === 'overworld') {
+      if (pressed[KEY_UP]) qGame.playerY -= SPEED;
+      if (pressed[KEY_DOWN]) qGame.playerY += SPEED;
+      if (pressed[KEY_LEFT]) qGame.playerX -= SPEED;
+      if (pressed[KEY_RIGHT]) qGame.playerX += SPEED;
+      qGame.playerX = Math.max(TILE, Math.min(canvas.width - TILE, qGame.playerX));
+      qGame.playerY = Math.max(TILE * 2, Math.min(canvas.height - TILE * 2, qGame.playerY));
+
+      const bx = 320, by = 120 + (qGame.level % 3) * 100;
+      if (Math.hypot(qGame.playerX - bx, qGame.playerY - by) < 35) {
+        qGame.state = 'battle';
+        qGame.bossHp = BOSSES[qGame.level].hp;
+        qGame.bossMaxHp = BOSSES[qGame.level].hp;
+        document.getElementById('questBattle').classList.add('show');
+        renderBattleQ();
+      }
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      ctx.fillStyle = zoneColor[(r + c) % 4];
+      ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
+    }
+    ctx.fillStyle = 'rgba(255,255,255,.03)';
+    for (let i = 0; i <= COLS; i++) { ctx.beginPath(); ctx.moveTo(i * TILE, 0); ctx.lineTo(i * TILE, canvas.height); ctx.stroke(); }
+    for (let i = 0; i <= ROWS; i++) { ctx.beginPath(); ctx.moveTo(0, i * TILE); ctx.lineTo(canvas.width, i * TILE); ctx.stroke(); }
+
+    const bx = 320, by = 120 + (qGame.level % 3) * 100;
+    const pulse = qGame.state === 'battle' ? 0 : Math.sin(Date.now() / 300) * 3;
+    ctx.fillStyle = qGame.state === 'battle' ? '#FF6B6B' : '#8B5CF6';
+    ctx.fillRect(bx - 16 + pulse, by - 16, 32, 32);
+    ctx.fillStyle = '#fff';
+    ctx.font = '18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('?', bx + pulse, by + 6);
+
+    ctx.fillStyle = '#F7931A';
+    ctx.beginPath();
+    ctx.arc(qGame.playerX, qGame.playerY, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('₿', qGame.playerX, qGame.playerY + 4);
+
+    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(BOSSES[qGame.level].zone + ' — Lv.' + (qGame.level + 1), canvas.width / 2, 20);
+    ctx.fillStyle = 'rgba(255,255,255,.12)';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('WASD/Arrows to move · Find ? to fight', canvas.width / 2, canvas.height - 8);
+
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+function renderBattleQ() {
+  if (!qGame) return;
+  const q = qGame.qBank[qGame.qIdx % qGame.qBank.length];
+  qGame.currentQ = q;
+  const boss = BOSSES[qGame.level];
+  document.getElementById('qBossName').textContent = '\u2694\uFE0F ' + boss.name;
+  document.getElementById('qBossHp').textContent = qGame.bossHp;
+  document.getElementById('qBossMaxHp').textContent = qGame.bossMaxHp;
+  document.getElementById('qBossHpBar').style.width = (qGame.bossHp / qGame.bossMaxHp * 100) + '%';
+  document.getElementById('qBattleQ').textContent = q.q;
+  let html = '';
+  const labels = ['A', 'B', 'C', 'D'];
+  q.opts.forEach(function(o, i) {
+    html += '<button id="qba' + i + '" onclick="answerBattleQ(' + i + ')">' + labels[i] + '. ' + o + '</button>';
+  });
+  document.getElementById('qBattleOpts').innerHTML = html;
+  document.getElementById('qBattleLog').textContent = '\u2694\uFE0F Answer correctly to attack!';
+  qGame.battleAnswered = false;
+}
+
+function answerBattleQ(chosen) {
+  if (!qGame || qGame.battleAnswered || qGame.state !== 'battle') return;
+  qGame.battleAnswered = true;
+  const q = qGame.currentQ;
+  const correct = chosen === q.c;
+  const boss = BOSSES[qGame.level];
+  document.querySelectorAll('#qBattleOpts button').forEach(function(b, i) {
+    b.disabled = true;
+    if (i === q.c) b.classList.add('correct');
+    else if (i === chosen) b.classList.add('wrong');
+  });
+
+  if (correct) {
+    const dmg = qGame.atk * 2 + Math.floor(Math.random() * 15) + 5;
+    qGame.bossHp = Math.max(0, qGame.bossHp - dmg);
+    document.getElementById('qBossHp').textContent = qGame.bossHp;
+    document.getElementById('qBossHpBar').style.width = (qGame.bossHp / qGame.bossMaxHp * 100) + '%';
+    document.getElementById('qBattleLog').textContent = '\uD83D\uDCA5 POWER MOVE! ' + dmg + ' damage!';
+
+    if (qGame.bossHp <= 0) {
+      const xpGain = 15 + qGame.level * 5;
+      qGame.xp += xpGain;
+      document.getElementById('qBattleLog').textContent = '\uD83C\uDF89 ' + boss.name + ' defeated! +' + xpGain + ' XP';
+      if (qGame.level >= BOSSES.length - 1) {
+        qGame.state = 'won';
+        setTimeout(function() {
+          document.getElementById('questOverlayTitle').textContent = '\uD83C\uDFC6 YOU WIN!';
+          document.getElementById('questOverlayMsg').textContent = 'All 10 bosses vanquished! Bitcoin is safe! You are a true Bitcoiner!';
+          document.getElementById('questOverlay').classList.add('show');
+          document.getElementById('questBattle').classList.remove('show');
+        }, 1200);
+      } else {
+        setTimeout(function() {
+          qGame.level++;
+          qGame.maxHp += 8;
+          qGame.hp = qGame.maxHp;
+          qGame.atk += 2;
+          qGame.def += 1;
+          qGame.xpNext = Math.floor(20 * Math.pow(1.35, qGame.level));
+          if (qGame.xp >= qGame.xpNext) { qGame.xp -= qGame.xpNext; qGame.maxHp += 5; qGame.hp = qGame.maxHp; qGame.atk += 1; qGame.xpNext = Math.floor(qGame.xpNext * 1.35); }
+          qGame.state = 'overworld';
+          qGame.playerX = 320;
+          qGame.playerY = 380;
+          document.getElementById('questBattle').classList.remove('show');
+          updateQuestHud();
+        }, 1500);
+      }
+      updateQuestHud();
+      return;
+    }
+    if (qGame.xp >= qGame.xpNext) { qGame.xp -= qGame.xpNext; qGame.maxHp += 5; qGame.hp = qGame.maxHp; qGame.atk += 1; qGame.xpNext = Math.floor(qGame.xpNext * 1.35); }
+    updateQuestHud();
+    setTimeout(function() {
+      const enemyDmg = Math.max(1, boss.atk * 2 - qGame.def + Math.floor(Math.random() * 5));
+      qGame.hp = Math.max(0, qGame.hp - enemyDmg);
+      updateQuestHud();
+      document.getElementById('qBattleLog').textContent = '\uD83D\uDCA2 ' + boss.name + ' counterattacks for ' + enemyDmg + ' damage!';
+      if (qGame.hp <= 0) {
+        qGame.state = 'lost';
+        setTimeout(function() {
+          document.getElementById('questOverlayTitle').textContent = '\uD83D\uDC80 Game Over';
+          document.getElementById('questOverlayMsg').textContent = 'Defeated at level ' + (qGame.level + 1) + ' by ' + boss.name + '. Keep learning!';
+          document.getElementById('questOverlay').classList.add('show');
+          document.getElementById('questBattle').classList.remove('show');
+        }, 500);
+      } else {
+        setTimeout(function() { qGame.qIdx++; renderBattleQ(); }, 1000);
+      }
+    }, 800);
+  } else {
+    const enemyDmg = Math.max(1, boss.atk * 2 + Math.floor(Math.random() * 5));
+    qGame.hp = Math.max(0, qGame.hp - enemyDmg * 2);
+    updateQuestHud();
+    document.getElementById('qBattleLog').textContent = '\u274C Wrong! ' + boss.name + ' strikes for ' + (enemyDmg * 2) + ' damage!';
+    if (qGame.hp <= 0) {
+      qGame.state = 'lost';
+      setTimeout(function() {
+        document.getElementById('questOverlayTitle').textContent = '\uD83D\uDC80 Game Over';
+        document.getElementById('questOverlayMsg').textContent = 'Defeated at level ' + (qGame.level + 1) + ' by ' + boss.name + '. Keep learning!';
+        document.getElementById('questOverlay').classList.add('show');
+        document.getElementById('questBattle').classList.remove('show');
+      }, 500);
+    } else {
+      setTimeout(function() { qGame.qIdx++; renderBattleQ(); }, 1200);
+    }
+  }
+}
+
+function updateQuestHud() {
+  if (!qGame) return;
+  const boss = BOSSES[qGame.level];
+  document.getElementById('qLevel').textContent = qGame.level + 1;
+  document.getElementById('qHp').textContent = qGame.hp + '/' + qGame.maxHp;
+  document.getElementById('qHpBar').style.width = (qGame.hp / qGame.maxHp * 100) + '%';
+  document.getElementById('qXp').textContent = qGame.xp + '/' + qGame.xpNext;
+  document.getElementById('qXpBar').style.width = (qGame.xp / qGame.xpNext * 100) + '%';
+  document.getElementById('qZone').textContent = boss.zone;
+}
+
+function resetQuest() {
+  document.getElementById('questOverlay').classList.remove('show');
+  document.getElementById('questGame').style.display = 'none';
+  document.getElementById('questBattle').classList.remove('show');
+  qGame = null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  13. SCROLL ANIMATIONS (Intersection Observer)
+// ═══════════════════════════════════════════════════════════════
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+} else {
+  document.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+}
+
+console.log('%c₿ Bitcoin Knowledge Hub', 'font-size:24px;font-weight:800;color:#F7931A');
+console.log('%cStack sats, not shit.', 'font-size:14px;color:rgba(255,255,255,.5)');
+</script>
+</body>
+</html>

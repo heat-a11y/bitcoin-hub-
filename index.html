@@ -125,7 +125,10 @@
         <div class="mb-4 flex items-center justify-between rounded-lg border bg-white px-4 py-3 shadow-sm">
           <button @click="weekOffset--" class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">&larr;</button>
           <div class="text-center">
-            <p class="text-sm font-semibold text-slate-900" x-text="'MINGGU ' + weekNumber()"></p>
+            <p class="text-sm font-semibold text-slate-900">
+              <span x-text="'MINGGU ' + weekNumber()"></span>
+              <span class="ml-2 text-xs font-normal text-slate-500" x-text="weekInfoFor(weekOffset).termLabel + ' · ' + weekInfoFor(weekOffset).blockLabel"></span>
+            </p>
             <p class="text-xs text-slate-500" x-text="weekDateRange()"></p>
           </div>
           <button @click="weekOffset++" class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">&rarr;</button>
@@ -151,12 +154,12 @@
                   <td class="px-3 py-1.5 text-xs font-medium text-slate-400">P<span x-text="p"></span></td>
                   <template x-for="d in days" :key="d">
                     <td
-                      @click="editSlot(d, p)"
+                      @click="openSlotModal(d, p)"
                       class="group relative min-h-[64px] cursor-pointer border-l px-1 py-1 align-top transition-colors hover:bg-indigo-50/50"
                     >
                       <template x-for="s in cellsFor(d, p)" :key="s.id">
                         <div
-                          @click.stop="editSlot(d, p, s)"
+                          @click.stop="openSlotModal(d, p, s)"
                           class="mb-0.5 cursor-pointer rounded-md border px-1.5 py-1 text-[11px] leading-tight transition-colors hover:shadow-sm"
                           x-bind:class="yearBadge(s.yearGroup)"
                         >
@@ -187,6 +190,67 @@
             </span>
           </template>
         </div>
+
+        <!-- Slot edit modal -->
+        <div x-show="slotModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm" @click.self="slotModal = false">
+          <div class="w-full max-w-md rounded-xl border bg-white p-6 shadow-lg">
+            <h3 class="mb-4 text-lg font-bold text-slate-900" x-text="slotForm.isNew ? 'Add Slot' : 'Edit Slot'"></h3>
+            <div class="space-y-3">
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-600">Year Group</label>
+                <select x-model="slotForm.yearGroup" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                  <template x-for="y in yearGroups" :key="y">
+                    <option x-bind:value="y" x-text="y"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-medium text-slate-600">Day</label>
+                <select x-model="slotForm.day" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                  <template x-for="d in days" :key="d">
+                    <option x-bind:value="d" x-text="d"></option>
+                  </template>
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-slate-600">Period</label>
+                  <select x-model="slotForm.period" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                    <template x-for="p in 8" :key="p">
+                      <option x-bind:value="p" x-text="'P' + p"></option>
+                    </template>
+                  </select>
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-slate-600">Part</label>
+                  <select x-model="slotForm.part" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                    <option value="1">Part 1</option>
+                    <option value="2">Part 2</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-slate-600">Start Time</label>
+                  <input type="time" x-model="slotForm.startTime" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-slate-600">End Time</label>
+                  <input type="time" x-model="slotForm.endTime" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 flex items-center justify-between">
+              <div>
+                <button x-show="!slotForm.isNew" @click="deleteSlot(slotForm.id)" class="rounded-lg px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50">Delete</button>
+              </div>
+              <div class="flex gap-2">
+                <button @click="slotModal = false" class="rounded-lg border bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                <button @click="saveSlot()" class="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-700">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ══════════════ TAB: GENERATE LESSON PLANS ══════════════ -->
@@ -201,7 +265,10 @@
         <div class="mb-4 flex items-center justify-between rounded-lg border bg-white px-4 py-3 shadow-sm">
           <button @click="genWeekOffset--" class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">&larr;</button>
           <div class="text-center">
-            <p class="text-sm font-semibold text-slate-900" x-text="mingguLabel"></p>
+            <p class="text-sm font-semibold text-slate-900">
+              <span x-text="mingguLabel"></span>
+              <span class="ml-2 text-xs font-normal text-slate-500" x-text="genWeekInfo.termLabel + ' · ' + genWeekInfo.blockLabel"></span>
+            </p>
             <p class="text-xs text-slate-500" x-text="genDateRange"></p>
           </div>
           <button @click="genWeekOffset++" class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">&rarr;</button>
@@ -261,6 +328,9 @@
               <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
               Export All PDF
             </button>
+            <button @click="insertReflectionsAll()" x-show="lessonPlans.length" class="inline-flex items-center gap-1.5 rounded-lg border bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 shadow-sm transition-colors hover:bg-amber-100">
+              <span>&#x1F4AD;</span> Insert All Reflections
+            </button>
           </div>
         </div>
 
@@ -317,6 +387,33 @@
                 <div x-show="plan.song" class="rounded-lg border bg-amber-50 p-3">
                   <p class="mb-1 text-xs font-semibold text-amber-800" x-text="plan.song.title"></p>
                   <pre class="whitespace-pre-wrap font-sans text-xs text-amber-700" x-text="plan.song.lyrics"></pre>
+                </div>
+
+                <!-- content standards -->
+                <div x-show="plan.contentStandards?.length">
+                  <h4 class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">📋 Content Standards</h4>
+                  <div class="flex flex-wrap gap-1.5">
+                    <template x-for="cs in plan.contentStandards" :key="cs.code">
+                      <span class="rounded-md border bg-slate-50 px-2 py-0.5 text-xs text-slate-600">
+                        <span class="font-mono font-medium" x-text="cs.code"></span>
+                        <span x-text="': ' + cs.description"></span>
+                        <span class="ml-1 rounded bg-indigo-100 px-1 text-[10px] text-indigo-600" x-text="cs.skillArea"></span>
+                      </span>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- learning standards -->
+                <div x-show="plan.learningStandards?.length">
+                  <h4 class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">🎯 Learning Standards</h4>
+                  <div class="space-y-1">
+                    <template x-for="(ls, li) in plan.learningStandards" :key="li">
+                      <div class="flex items-start gap-2 text-sm text-slate-600">
+                        <span class="shrink-0 font-mono text-xs text-slate-400" x-text="ls.code"></span>
+                        <span x-text="ls.description"></span>
+                      </div>
+                    </template>
+                  </div>
                 </div>
 
                 <!-- objectives -->
@@ -402,6 +499,9 @@
                     class="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-700 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                     rows="3"
                   ></textarea>
+                  <button @click.stop="insertReflection(plan)" class="mt-2 inline-flex items-center gap-1.5 rounded-lg border bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100">
+                    <span>&#x1F4AD;</span> Insert Reflection
+                  </button>
                 </div>
 
                 <!-- copy / print -->
@@ -591,6 +691,61 @@
         </div>
       </section>
 
+      <!-- ══════════════ TAB: REFLECTION ══════════════ -->
+      <section x-show="activeTab === 'reflection'" x-cloak class="fade-in mx-auto max-w-5xl">
+
+        <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900">Reflection</h1>
+            <p class="mt-1 text-sm text-slate-500">Browse, copy, and manage teacher reflection templates for each year group.</p>
+          </div>
+          <select x-model="reflectionYear" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 sm:w-48">
+            <template x-for="y in yearGroups" :key="y">
+              <option x-bind:value="y" x-text="y"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- Insert to lesson plans -->
+        <div class="mb-6 rounded-xl border bg-white p-4 shadow-sm">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-lg">&#x1F4AD;</span>
+              <div>
+                <p class="text-sm font-semibold text-slate-900">Insert Reflections into Lesson Plans</p>
+                <p class="text-xs text-slate-500">Auto-fill empty reflections in all existing lesson plans based on their year group.</p>
+              </div>
+            </div>
+            <button @click="insertReflectionsAll()" class="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-amber-700">
+              <span>&#x26A1;</span> Insert All
+            </button>
+          </div>
+        </div>
+
+        <!-- Reflection cards -->
+        <div class="space-y-3">
+          <template x-for="(ref, idx) in availableReflections(reflectionYear)" :key="idx">
+            <div class="rounded-xl border bg-white shadow-sm transition-shadow hover:shadow">
+              <div class="px-5 py-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-start gap-3 min-w-0">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700" x-text="idx + 1"></span>
+                    <p class="text-sm leading-relaxed text-slate-700" x-text="ref"></p>
+                  </div>
+                  <button @click="copyReflection(ref)" class="shrink-0 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50">
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+          <div x-show="!availableReflections(reflectionYear).length" class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-16 text-center text-slate-400">
+            <span class="text-3xl mb-3">&#x1F4AD;</span>
+            <p class="text-sm font-medium">No reflections available for <span x-text="reflectionYear"></span></p>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 </div>
@@ -602,15 +757,17 @@ document.addEventListener('alpine:init', () => {
     sidebarOpen: false,
     activeTab: localStorage.getItem('malp_tab') || 'timetable',
     tabs: [
-      { id: 'timetable', label: 'My Timetable', icon: '📅' },
-      { id: 'generate',  label: 'Generate Lesson Plans', icon: '📋' },
+      { id: 'timetable',  label: 'My Timetable', icon: '📅' },
+      { id: 'generate',   label: 'Generate Lesson Plans', icon: '📋' },
       { id: 'curriculum', label: 'Curriculum Database', icon: '📚' },
+      { id: 'reflection', label: 'Reflection', icon: '📝' },
     ],
 
     // ── Data ──
     timetable: [],
     lessonPlans: [],
     curriculumYear: 'Year 3',
+    reflectionYear: 'Year 1',
     weekOffset: 0,
     genWeekOffset: 0,
 
@@ -640,6 +797,10 @@ document.addEventListener('alpine:init', () => {
 
     get genDateRange() {
       return this.weekDateRangeFor(this.genWeekOffset)
+    },
+
+    get genWeekInfo() {
+      return this.weekInfoFor(this.genWeekOffset)
     },
 
     get slotsByDay() {
@@ -705,6 +866,7 @@ document.addEventListener('alpine:init', () => {
           if (d.timetable) this.timetable = d.timetable
           if (d.lessonPlans) this.lessonPlans = d.lessonPlans
           if (d.curriculumYear) this.curriculumYear = d.curriculumYear
+          if (d.reflectionYear) this.reflectionYear = d.reflectionYear
           if (d.form) this.form = d.form
           if (d.genWeekOffset != null) this.genWeekOffset = d.genWeekOffset
           if (d.weekOffset != null) this.weekOffset = d.weekOffset
@@ -725,6 +887,7 @@ document.addEventListener('alpine:init', () => {
           timetable: this.timetable,
           lessonPlans: this.lessonPlans,
           curriculumYear: this.curriculumYear,
+          reflectionYear: this.reflectionYear,
           form: this.form,
           genWeekOffset: this.genWeekOffset,
           weekOffset: this.weekOffset,
@@ -743,36 +906,78 @@ document.addEventListener('alpine:init', () => {
       return this.timetable.filter(s => s.day === day && s.period === period)
     },
 
+    // ── Slot editing modal state ──
+    slotModal: false,
+    slotForm: { id: '', day: 'Monday', period: 1, part: 1, startTime: '08:00', endTime: '09:00', yearGroup: 'Year 1', subject: 'English', isNew: true },
+
+    openSlotModal(day, period, existing) {
+      if (existing) {
+        this.slotForm = { ...existing, isNew: false }
+      } else {
+        this.slotForm = { id: crypto.randomUUID(), day, period, part: 1, startTime: '08:00', endTime: '09:00', yearGroup: 'Year 1', subject: 'English', isNew: true }
+      }
+      this.slotModal = true
+    },
+
+    saveSlot() {
+      const f = this.slotForm
+      if (!f.yearGroup || !f.startTime || !f.endTime || !f.day) return
+      const slot = { id: f.id, day: f.day, period: f.period, part: parseInt(f.part) || 1, startTime: f.startTime, endTime: f.endTime, yearGroup: f.yearGroup, subject: f.subject || 'English' }
+      if (f.isNew) {
+        this.timetable = [...this.timetable, slot]
+      } else {
+        this.timetable = this.timetable.map(s => s.id === slot.id ? slot : s)
+      }
+      this.slotModal = false
+    },
+
+    deleteSlot(id) {
+      if (confirm('Delete this slot?')) {
+        this.timetable = this.timetable.filter(s => s.id !== id)
+        this.slotModal = false
+      }
+    },
+
     weekNumber() {
       return this.weekNumberFor(this.weekOffset)
     },
 
     weekDateRange() {
-      const r = this.weekBoundsFor(this.weekOffset)
-      const fmt = d => d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' })
-      return `${fmt(r.mon)} – ${fmt(r.fri)} ${r.fri.getFullYear()}`
+      return this.weekDateRangeFor(this.weekOffset)
     },
 
     weekBoundsFor(offset) {
-      const now = new Date()
-      now.setDate(now.getDate() + (offset || 0) * 7)
-      const day = now.getDay()
-      const mon = new Date(now); mon.setDate(now.getDate() - ((day + 6) % 7))
-      const fri = new Date(mon); fri.setDate(mon.getDate() + 4)
-      return { mon, fri }
+      const idx = this.weekIndexFor(offset)
+      const w = TAKWIM_2026[idx] || TAKWIM_2026[0]
+      return { mon: new Date(w.start + 'T00:00:00'), fri: new Date(w.end + 'T00:00:00') }
     },
 
     weekNumberFor(offset) {
-      const now = new Date()
-      now.setDate(now.getDate() + (offset || 0) * 7)
-      const start = new Date(now.getFullYear(), 0, 1)
-      return Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7)
+      const idx = this.weekIndexFor(offset)
+      const w = TAKWIM_2026[idx] || TAKWIM_2026[0]
+      return w.minggu
     },
 
     weekDateRangeFor(offset) {
       const r = this.weekBoundsFor(offset)
       const fmt = d => d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' })
       return `${fmt(r.mon)} – ${fmt(r.fri)} ${r.fri.getFullYear()}`
+    },
+
+    weekIndexFor(offset) {
+      const mid = Math.floor(TAKWIM_2026.length / 2)
+      let idx = mid + (offset || 0)
+      if (idx < 0) idx = 0
+      if (idx >= TAKWIM_2026.length) idx = TAKWIM_2026.length - 1
+      return idx
+    },
+
+    weekInfoFor(offset) {
+      const idx = this.weekIndexFor(offset)
+      const w = TAKWIM_2026[idx] || TAKWIM_2026[0]
+      const termLabel = w.term === 1 ? 'Penggal 1' : 'Penggal 2'
+      const blockLabel = 'Blok ' + w.block
+      return { ...w, termLabel, blockLabel }
     },
 
     dateForDay(dayName, referenceDate) {
@@ -784,26 +989,6 @@ document.addEventListener('alpine:init', () => {
       const d = new Date(referenceDate)
       d.setDate(d.getDate() + diff)
       return d
-    },
-
-    editSlot(day, period, existing) {
-      const slot = existing || { id: '', day, period, part: 1, startTime: '08:00', endTime: '09:00', yearGroup: 'Year 1', subject: 'English' }
-      const name = prompt(`Edit slot (Y${slot.yearGroup.replace('Year ','')} · ${slot.startTime}–${slot.endTime})\nFormat: Year,Part,Start,End\nExample: 3,1,08:15,09:15`, `${slot.yearGroup.replace('Year ','')},${slot.part || 1},${slot.startTime},${slot.endTime}`)
-      if (!name) return
-      const parts = name.split(',').map(s => s.trim())
-      if (parts.length >= 4) {
-        const [yr, pt, st, en] = parts
-        const yearGroup = 'Year ' + yr
-        if (!this.yearGroups.includes(yearGroup)) { alert('Invalid year. Use 1–6.'); return }
-        const updated = { ...slot, yearGroup, part: parseInt(pt) || 1, startTime: st, endTime: en, id: slot.id || crypto.randomUUID() }
-        if (existing) {
-          this.timetable = this.timetable.map(s => s.id === updated.id ? updated : s)
-        } else {
-          this.timetable = [...this.timetable, updated]
-        }
-      } else {
-        alert('Format: Year,Part,Start,End  (e.g. 3,1,08:15,09:15)')
-      }
     },
 
     yearBadge(year) {
@@ -939,6 +1124,8 @@ document.addEventListener('alpine:init', () => {
             slotTime: slot.startTime + '\u2013' + slot.endTime,
             duration: this.minutesBetween(slot.startTime, slot.endTime),
             part: slot.part,
+            contentStandards: unit.contentStandards || [],
+            learningStandards: unit.learningStandards || [],
             learningObjectives: unit.learningObjectives?.length
               ? unit.learningObjectives
               : [`By the end of the lesson, pupils will be able to identify key concepts related to ${unit.title}.`],
@@ -964,7 +1151,7 @@ document.addEventListener('alpine:init', () => {
                   { id: this.generateId(), phase: 'Closure', description: 'Recap key points. Exit ticket: "One new word I learned is ____".', duration: 5, teacherRole: 'Facilitator', studentRole: 'Reflector' },
                 ],
             song: unit.songs?.length ? unit.songs[Math.floor(Math.random() * unit.songs.length)] : null,
-            reflection: '',
+            reflection: this.generateReflection({ yearGroup: slot.yearGroup }),
             _open: true,
             _animating: true,
           }
@@ -1046,6 +1233,8 @@ document.addEventListener('alpine:init', () => {
             slotTime: slot.startTime + '\u2013' + slot.endTime,
             duration: this.minutesBetween(slot.startTime, slot.endTime),
             part: slot.part,
+            contentStandards: unit.contentStandards || [],
+            learningStandards: unit.learningStandards || [],
             learningObjectives: unit.learningObjectives?.length
               ? unit.learningObjectives
               : [`By the end of the lesson, pupils will be able to identify key concepts related to ${unit.title}.`],
@@ -1071,7 +1260,7 @@ document.addEventListener('alpine:init', () => {
                   { id: this.generateId(), phase: 'Closure', description: 'Recap and exit ticket activity.', duration: 5, teacherRole: 'Facilitator', studentRole: 'Reflector' },
                 ],
             song: unit.songs?.length ? unit.songs[Math.floor(Math.random() * unit.songs.length)] : null,
-            reflection: '',
+            reflection: this.generateReflection(slot),
             _open: true,
             _animating: true,
           }
@@ -1095,12 +1284,43 @@ document.addEventListener('alpine:init', () => {
       }
     },
 
+    // ── Reflection functions ──
+    generateReflection(plan) {
+      const reflections = REFLECTIONS[plan.yearGroup]
+      if (!reflections || !reflections.length) return ''
+      return reflections[Math.floor(Math.random() * reflections.length)]
+    },
+
+    insertReflection(plan) {
+      plan.reflection = this.generateReflection(plan)
+    },
+
+    insertReflectionsAll() {
+      this.lessonPlans.forEach(p => {
+        if (!p.reflection) {
+          p.reflection = this.generateReflection(p)
+        }
+      })
+    },
+
+    availableReflections(yearGroup) {
+      return REFLECTIONS[yearGroup] || []
+    },
+
+    copyReflection(text) {
+      navigator.clipboard.writeText(text || '')
+    },
+
     copyPlan(plan) {
       const lines = [
         plan.title, '',
         `Date: ${plan.date}  |  ${plan.yearGroup}  |  ${plan.duration} min`,
         `Theme: ${plan.theme}  |  Topic: ${plan.topic}`,
         `Skills: ${plan.skillArea.join(', ')}`, '',
+        plan.contentStandards?.length ? 'CONTENT STANDARDS:' : '',
+        ...(plan.contentStandards || []).map(cs => `  \u2022 ${cs.code}: ${cs.description}`), '',
+        plan.learningStandards?.length ? 'LEARNING STANDARDS:' : '',
+        ...(plan.learningStandards || []).map(ls => `  \u2022 ${ls.code}: ${ls.description}`), '',
         'LEARNING OBJECTIVES:',
         ...plan.learningObjectives.map(o => `  \u2022 ${o}`), '',
         'ACTIVITIES:',
@@ -1125,6 +1345,8 @@ document.addEventListener('alpine:init', () => {
               ${plan.skillArea.map(s => '<span style="background:#eef2ff;color:#4f46e5;border-radius:9999px;padding:.125rem .625rem;font-size:.7rem;font-weight:600">' + s + '</span>').join('')}
             </div>
           </div>
+          ${plan.contentStandards?.length ? '<div style="margin-top:1.25rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Content Standards</h2><div style="display:flex;flex-wrap:wrap;gap:.375rem">' + plan.contentStandards.map(cs => '<span style="background:#f1f5f9;border-radius:9999px;padding:.125rem .55rem;font-size:.72rem;color:#475569;margin-right:.25rem"><strong>' + this.escapeHtml(cs.code) + '</strong>: ' + this.escapeHtml(cs.description) + '</span>').join('') + '</div></div>' : ''}
+          ${plan.learningStandards?.length ? '<div style="margin-top:1.25rem"><h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Learning Standards</h2><div style="display:flex;flex-wrap:wrap;gap:.375rem">' + plan.learningStandards.map(ls => '<span style="background:#f1f5f9;border-radius:9999px;padding:.125rem .55rem;font-size:.72rem;color:#475569;margin-right:.25rem"><strong>' + this.escapeHtml(ls.code) + '</strong>: ' + this.escapeHtml(ls.description) + '</span>').join('') + '</div></div>' : ''}
           <div style="margin-top:1.25rem">
             <h2 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4f46e5;border-bottom:2px solid #e2e8f0;padding-bottom:.25rem;margin-bottom:.5rem">Learning Objectives</h2>
             <ul style="list-style:none;padding:0">${plan.learningObjectives.map(o => '<li style="padding:.2rem 0;font-size:.8rem;padding-left:1rem;position:relative">' + this.escapeHtml(o) + '</li>').join('')}</ul>
@@ -3531,6 +3753,145 @@ const CURRICULUM_DB = {
     ],
   },
 }
+
+// ── Takwim KPM 2026 ──
+const TAKWIM_2026 = [
+  // PENGGAL 1 — Block 1 (10 weeks)
+  { minggu: 1,  start: '2026-01-12', end: '2026-01-16', term: 1, block: 1 },
+  { minggu: 2,  start: '2026-01-19', end: '2026-01-23', term: 1, block: 1 },
+  { minggu: 3,  start: '2026-01-26', end: '2026-01-30', term: 1, block: 1 },
+  { minggu: 4,  start: '2026-02-02', end: '2026-02-06', term: 1, block: 1 },
+  { minggu: 5,  start: '2026-02-09', end: '2026-02-13', term: 1, block: 1 },
+  { minggu: 6,  start: '2026-02-16', end: '2026-02-20', term: 1, block: 1 },
+  { minggu: 7,  start: '2026-02-23', end: '2026-02-27', term: 1, block: 1 },
+  { minggu: 8,  start: '2026-03-02', end: '2026-03-06', term: 1, block: 1 },
+  { minggu: 9,  start: '2026-03-09', end: '2026-03-13', term: 1, block: 1 },
+  { minggu: 10, start: '2026-03-16', end: '2026-03-20', term: 1, block: 1 },
+  // CUTI PENGGAL 1: 21/03/2026 - 29/03/2026
+  // PENGGAL 1 — Block 2 (8 weeks)
+  { minggu: 11, start: '2026-03-30', end: '2026-04-03', term: 1, block: 2 },
+  { minggu: 12, start: '2026-04-06', end: '2026-04-10', term: 1, block: 2 },
+  { minggu: 13, start: '2026-04-13', end: '2026-04-17', term: 1, block: 2 },
+  { minggu: 14, start: '2026-04-20', end: '2026-04-24', term: 1, block: 2 },
+  { minggu: 15, start: '2026-04-27', end: '2026-05-01', term: 1, block: 2 },
+  { minggu: 16, start: '2026-05-04', end: '2026-05-08', term: 1, block: 2 },
+  { minggu: 17, start: '2026-05-11', end: '2026-05-15', term: 1, block: 2 },
+  { minggu: 18, start: '2026-05-18', end: '2026-05-22', term: 1, block: 2 },
+  // CUTI PERTENGAHAN TAHUN: 23/05/2026 - 07/06/2026
+  // PENGGAL 2 — Block 1 (12 weeks)
+  { minggu: 19, start: '2026-06-08', end: '2026-06-12', term: 2, block: 1 },
+  { minggu: 20, start: '2026-06-15', end: '2026-06-19', term: 2, block: 1 },
+  { minggu: 21, start: '2026-06-22', end: '2026-06-26', term: 2, block: 1 },
+  { minggu: 22, start: '2026-06-29', end: '2026-07-03', term: 2, block: 1 },
+  { minggu: 23, start: '2026-07-06', end: '2026-07-10', term: 2, block: 1 },
+  { minggu: 24, start: '2026-07-13', end: '2026-07-17', term: 2, block: 1 },
+  { minggu: 25, start: '2026-07-20', end: '2026-07-24', term: 2, block: 1 },
+  { minggu: 26, start: '2026-07-27', end: '2026-07-31', term: 2, block: 1 },
+  { minggu: 27, start: '2026-08-03', end: '2026-08-07', term: 2, block: 1 },
+  { minggu: 28, start: '2026-08-10', end: '2026-08-14', term: 2, block: 1 },
+  { minggu: 29, start: '2026-08-17', end: '2026-08-21', term: 2, block: 1 },
+  { minggu: 30, start: '2026-08-24', end: '2026-08-28', term: 2, block: 1 },
+  // CUTI PENGGAL 2: 29/08/2026 - 06/09/2026
+  // PENGGAL 2 — Block 2 (13 weeks)
+  { minggu: 31, start: '2026-09-07', end: '2026-09-11', term: 2, block: 2 },
+  { minggu: 32, start: '2026-09-14', end: '2026-09-18', term: 2, block: 2 },
+  { minggu: 33, start: '2026-09-21', end: '2026-09-25', term: 2, block: 2 },
+  { minggu: 34, start: '2026-09-28', end: '2026-10-02', term: 2, block: 2 },
+  { minggu: 35, start: '2026-10-05', end: '2026-10-09', term: 2, block: 2 },
+  { minggu: 36, start: '2026-10-12', end: '2026-10-16', term: 2, block: 2 },
+  { minggu: 37, start: '2026-10-19', end: '2026-10-23', term: 2, block: 2 },
+  { minggu: 38, start: '2026-10-26', end: '2026-10-30', term: 2, block: 2 },
+  { minggu: 39, start: '2026-11-02', end: '2026-11-06', term: 2, block: 2 },
+  { minggu: 40, start: '2026-11-09', end: '2026-11-13', term: 2, block: 2 },
+  { minggu: 41, start: '2026-11-16', end: '2026-11-20', term: 2, block: 2 },
+  { minggu: 42, start: '2026-11-23', end: '2026-11-27', term: 2, block: 2 },
+  { minggu: 43, start: '2026-11-30', end: '2026-12-04', term: 2, block: 2 },
+  // CUTI AKHIR PERSEKOLAHAN: starts 05/12/2026
+]
+
+// ── Reflection Templates (10 variations per Year) ──
+const REFLECTIONS = {
+  'Year 1': [
+    '12 pupils were able to complete the tasks with guidance. There were some pupils like Laksyaan, Jing Ting, Jing Tong, Eynna, and Bernice who could do the tasks with minimal helps. Pang Yun Xin, Lai Pei Shen, and Kok Chee Hang are okay, Kok Hao Yuan was okay but need constant reminder to stay on his path. However, Shavinaa, Sin Chee Chung, and Methi Selvam need a lot of helps as some of their skills are not that good yet despite listening and speaking skills are of satisfaction.',
+    'Most pupils showed enthusiasm during the lesson. 14 out of 18 pupils achieved the learning objectives with guidance. The weaker pupils (Shavinaa, Sin Chee Chung, Methi Selvam) struggled with writing tasks but participated well in speaking activities. Kok Hao Yuan needs constant redirection to stay focused. Laksyaan and Jing Ting showed excellent comprehension and completed tasks independently.',
+    'The lesson went well overall. Pupils enjoyed the song and movement activities. Listening skills were satisfactory across the class. However, writing tasks revealed a gap between stronger pupils (Bernice, Eynna, Jing Tong) who completed work quickly and weaker ones who needed step-by-step guidance. Lai Pei Shen showed improvement in confidence today.',
+    'Speaking activity was a success — most pupils volunteered to answer questions. Kok Chee Hang and Pang Yun Xin are progressing well. Methi Selvam needed translation support in Mandarin to understand instructions. Shavinaa was shy at first but warmed up during pair work. Future lessons should focus more on differentiated writing tasks.',
+    'Pupils responded well to the use of visual aids and real objects. The kinaesthetic activity helped maintain engagement. Jing Ting and Laksyaan finished early and helped their peers. Kok Hao Yuan tried his best today but lost focus during the main task. Learning objectives were partially achieved for 3 pupils who need additional reinforcement.',
+    'Classroom management was smooth today. The use of group work allowed stronger pupils (Bernice, Eynna) to support weaker ones. Sin Chee Chung and Shavinaa benefited from peer scaffolding. However, Lai Pei Shen and Kok Chee Hang need more challenging tasks to stay engaged. Overall, 70% of pupils met the success criteria.',
+    'The set induction effectively captured pupils\' attention. Most pupils could identify and name classroom objects correctly. Methi Selvam and Shavinaa still confuse some vocabulary items. Jing Tong and Laksyaan demonstrated mastery and could produce short phrases. Follow-up activities should target the weaker pupils\' writing skills.',
+    'Pupils were active participants throughout the lesson. The differentiated worksheet helped cater to different ability levels. High readiness pupils (Eynna, Bernice, Jing Ting) completed extension tasks. Kok Hao Yuan needed reminders to complete his work. Sin Chee Chung showed good effort in the reading activity.',
+    'Today\'s lesson focused on listening and speaking. 11 pupils could follow instructions without repetition. Pang Yun Xin and Lai Pei Shen are showing steady progress. However, Methi Selvam and Shavinaa require simplified instructions with gestures. Overall, the class is developing good foundational English skills.',
+    'The majority of pupils were engaged and on task. Jing Ting and Laksyaan demonstrated leadership during group activities. Kok Chee Hang participated more actively than usual. Weak areas identified: writing for Shavinaa, Sin Chee Chung, and Methi Selvam; focus for Kok Hao Yuan. Next lesson will incorporate more writing scaffolds.',
+  ],
+  'Year 2': [
+    'The overall mastery level of the Year 2 pupils is satisfactory as many of them can engage in a conversation in English with the teacher (Arshdeep, Ming Xuan, Yi Ting, Sin Ling, Shu Ni, Macson, Ruvisha). However, the weaker students (Hendrikus, Zi Qian, Zing Heng, Tanalechimi, Novian, and Yaathis) need much helps from their peers and the teacher. Novian can speak but writing wise, most of them still need helps from the teachers.',
+    'Most pupils showed good participation in speaking activities. Arshdeep, Ming Xuan, and Yi Ting demonstrated confidence in using English. The weaker group (Hendrikus, Zi Qian, Zing Heng) struggled with sentence construction. Tanalechimi and Novian need vocabulary reinforcement. Writing remains a challenge for the majority of the class.',
+    'Reading comprehension was satisfactory for 12 pupils. Macson and Ruvisha could read with good pronunciation and intonation. Sin Ling and Shu Ni comprehended well but need to build reading fluency. Hendrikus and Yaathis require phonics support. The class responded well to the guided reading approach.',
+    'Listening skills are improving across the class. Most pupils could follow 2-step instructions. Novian showed improvement in speaking but his writing still needs guidance. Zing Heng and Zi Qian were distracted today. Arshdeep and Ming Xuan completed all tasks ahead of time and helped peers.',
+    'The lesson incorporated group activities which promoted collaboration. Stronger pupils (Yi Ting, Sin Ling) supported their group members effectively. Tanalechimi and Hendrikus benefited from peer teaching. However, classroom noise levels were high during the group discussion. Future lessons should include clearer time limits.',
+    'Pupils enjoyed the song and movement activity. Ruvisha and Macson displayed good memory recall of vocabulary. Shu Ni and Novian participated well in the chant. Yaathis and Zing Heng needed extra support during the writing task. Overall, 13 pupils achieved the learning objectives.',
+    'Writing activity revealed that most pupils still need sentence starters and word banks. Arshdeep and Ming Xuan could write independently. Yi Ting and Sin Ling wrote with minor errors. Hendrikus, Zi Qian, and Tanalechimi produced 1-2 simple sentences with guidance. Writing scaffolds will be continued.',
+    'Speaking assessment showed mixed results. 8 pupils can hold a short conversation in English. Novian can express ideas but needs grammatical correction. Yaathis and Zing Heng are still reluctant to speak in English. More fun speaking activities are needed to build their confidence.',
+    'The differentiated tasks helped address varying ability levels. High readiness pupils (Arshdeep, Ming Xuan, Ruvisha) completed challenging extension work. Mid-readiness pupils (Macson, Shu Ni, Sin Ling) worked with minimal support. Low-readiness pupils (Hendrikus, Zi Qian, Yaathis) need more scaffolding in future lessons.',
+    'Overall, the class is making steady progress. Listening and speaking are stronger than writing skills. Tanalechimi and Novian have improved in participation. Zing Heng needs encouragement to stay on task. The focus for next week will be on building writing confidence through guided exercises.',
+  ],
+  'Year 3': [
+    'Liew Heng Kai was having short attention span despite having satisfactory English mastery while Lim Yi Sheng was suspected to have learning difficulty as he has problems in almost all subjects. For the others, they are doing okay but they are still afraid to try new things like singing and doing solo presentation. Aurelius, Zi Ying, Jing Rou, Yuna, and Pritishaa are fine in all four skills but Niha and Aiden are a bit scared to speak in English.',
+    'The lesson went well with most pupils engaged. Aurelius and Zi Ying demonstrated strong understanding of the topic. Jing Rou and Yuna completed tasks efficiently. Pritishaa showed creativity in her work. Liew Heng Kai needed frequent reminders to focus. Lim Yi Sheng requires substantial support across all activities.',
+    'Pupils participated actively in the reading activity. Jing Rou and Aurelius could read with good expression. Niha and Aiden participated but lacked confidence in speaking. Liew Heng Kai rushed through his work carelessly. Lim Yi Sheng struggled with vocabulary recognition. Differentiated materials helped manage the diverse needs.',
+    'Speaking activity revealed that most pupils are still hesitant to present solo. Yuna and Pritishaa volunteered to present first, setting a good example. Zi Ying and Aurelius followed confidently. Niha and Aiden needed encouragement. Liew Heng Kai was distracted during peer presentations. More pair work is needed before solo presentations.',
+    'The grammar lesson on present continuous was well received. 15 pupils could form -ing verbs correctly. Jing Rou and Yuna wrote excellent sentences. Lim Yi Sheng confused the verb forms. Liew Heng Kai understood the concept but made careless mistakes. Niha is improving but still lacks confidence in speaking.',
+    'Writing task showed improvement in most pupils. Pritishaa and Aurelius wrote detailed paragraphs. Zi Ying used good vocabulary. Lim Yi Sheng wrote 2 simple sentences with help. Liew Heng Kai\'s work was untidy and incomplete. Aiden needs vocabulary building exercises. The class average is satisfactory.',
+    'Group work was effective today. Yuna led her group well. Jing Rou and Pritishaa collaborated productively. Niha participated more than usual, which is encouraging. Lim Yi Sheng needed one-on-one support. Liew Heng Kai disturbed his group members. Behaviour management strategies will be reviewed.',
+    'Listening comprehension was good — most pupils answered questions correctly. Aurelius and Zi Ying scored full marks on the worksheet. Jing Rou demonstrated good critical thinking. Aiden and Niha understood the main idea but missed details. Liew Heng Kai\'s attention wandered during the listening text.',
+    'The song activity was enjoyable but some pupils were shy to sing. Yuna and Pritishaa sang enthusiastically. Aurelius and Zi Ying joined after some encouragement. Niha and Aiden mouthed the words but did not sing aloud. Liew Heng Kai was more interested in the guitar than singing. Lim Yi Sheng needed help following the lyrics.',
+    'Overall, Year 3 is a mixed-ability class. 6 pupils (Aurelius, Zi Ying, Jing Rou, Yuna, Pritishaa, Liew Heng Kai) have satisfactory English mastery. Liew Heng Kai\'s attention span is a concern. Lim Yi Sheng needs specialised support. Niha and Aiden need confidence-building activities. The focus will be on encouraging risk-taking in language use.',
+  ],
+  'Year 4': [
+    'The overall performance of Year 4 pupils is progressing well. Most pupils can understand and respond to classroom instructions in English. Stronger pupils completed tasks ahead of time and showed good comprehension of the reading text. Weaker pupils needed word bank support and sentence starters. Group work was effective in promoting peer learning and collaboration.',
+    'Pupils showed good engagement during the lesson development phase. The majority could identify main ideas from the reading passage. Writing tasks revealed that 60% of pupils can construct 3-4 sentences independently. The rest require guided writing templates. Grammar accuracy remains an area for improvement across the class.',
+    'Speaking activity saw good participation rates. Most pupils volunteered to answer questions during the Q&A session. However, some pupils are still code-switching between Malay and English. The use of sentence frames helped reduce L1 interference. Pair work discussion was lively and on-task for the most part.',
+    'Critical thinking skills were exercised during the problem-solving task. Higher-order questions challenged the advanced learners effectively. Mid-level pupils managed well with scaffolding. Low-readiness pupils could identify basic information but struggled with inferential questions. More thinking skills activities will be incorporated.',
+    'The project-based activity was well received. Pupils enjoyed creating their mini books and presented them confidently. Creativity was evident in most projects. Time management was an issue for some groups who did not complete on time. Future project work will include clearer milestones and checkpoints.',
+    'Listening comprehension exercise showed 75% of pupils achieved the targeted score. The main challenge was identifying specific details in longer audio passages. Note-taking skills need to be explicitly taught. Visual aids during pre-listening helped prepare pupils for the content.',
+    'Grammar focus on past tense showed mixed results. Regular verbs were well understood. Irregular verbs remain challenging for 40% of the class. The grammar game at the end helped reinforce learning. Follow-up worksheets will target the commonly confused irregular verbs.',
+    'Reading aloud activity built confidence in pronunciation and intonation. Most pupils read with acceptable fluency. Expression and phrasing need more practice. Choral reading worked well as a modelling strategy before individual reading. Weak readers benefited from paired reading with stronger peers.',
+    'Vocabulary acquisition is on track. Most pupils learned and used at least 5 new words from the unit. The word wall and vocabulary games helped retention. Spelling accuracy still needs attention for multi-syllabic words. Weekly spelling quizzes will continue.',
+    'Overall, Year 4 is a cohesive class with good learning attitudes. The range of abilities is manageable with differentiated instruction. Strengths: participation, creativity, reading comprehension. Areas for growth: grammar accuracy, independent writing, and higher-order thinking skills.',
+  ],
+  'Year 5': [
+    'The overall mastery level of Year 5 pupils is above satisfactory, except for speaking skills as some of them are still reluctant to speak to the teacher using English despite their reading and writing skills are fine (Yi Hui, Jing Xuan, and Mei See). Maxime and Wen Yong can communicate fully in English between each other and with the teacher. Darrshan also shows potential in becoming better in all four skills. The focus of Year 5 pupils is on expansion, wanting them to go beyond their levels in order to incultivate the life long learning using English as the main medium.',
+    'Reading comprehension is strong in this class. Most pupils could analyse the text and answer inferential questions. Maxime and Wen Yong demonstrated advanced analytical skills. Darsshan showed good understanding. Yi Hui and Jing Xuan comprehend well but are passive in class discussions. Speaking confidence remains the main challenge.',
+    'Writing task revealed good creativity and organisation. Pupils wrote well-structured paragraphs with appropriate vocabulary. Maxime wrote at an above-expectation level. Wen Yong used sophisticated sentence structures. Mei See\'s writing is good but she rarely speaks up. Speaking activities need to be integrated more into daily lessons.',
+    'Speaking activity was challenging for some. Maxime and Wen Yong communicated fluently. Darsshan participated confidently. However, Yi Hui, Jing Xuan, and Mei See preferred to write rather than speak. The use of role-play and real-life scenarios may help build their confidence in oral communication.',
+    'Grammar focus on conditionals was well handled. Most pupils could form Type 1 and Type 2 conditional sentences. Maxime attempted Type 3 conditionals correctly. Wen Yong showed good understanding of the concept. Jing Xuan needed additional examples. The grammar games helped reinforce the structure.',
+    'Listening skills are generally strong. Pupils could extract specific information from audio texts. Wen Yong and Maxime scored highest on the listening quiz. Yi Hui\'s listening is good but she needs to respond more in discussions. Darsshan\'s listening has improved significantly this term.',
+    'Project work on environmental issues was excellent. Pupils researched and presented on various topics. Maxime and Wen Yong\'s presentation was comprehensive and well-delivered. Darsshan used good visual aids. Mei See\'s written report was thorough but her oral presentation was brief. More presentation practice is needed.',
+    'Literature component was well received. Pupils engaged with the short stories and poems. Comprehension was high across the class. Maxime offered insightful interpretations. Yi Hui showed good understanding when called upon. Jing Xuan wrote an excellent character analysis. Speaking up in class remains the common hurdle.',
+    'Higher-order thinking skills are developing well. Most pupils could evaluate and create using Bloom\'s taxonomy. The differentiation in tasks allowed all pupils to be challenged appropriately. Darsshan particularly shone in the creative task. The class average for critical thinking tasks is above expectation.',
+    'Overall, Year 5 is a high-performing class with strong foundations in reading and writing. The main priority is to develop speaking confidence and reduce affective filter. Strategies: more pair/group discussions, role-play, presentations in non-threatening contexts, and positive reinforcement for oral participation.',
+  ],
+  'Year 6': [
+    'In terms of comparison, Year 6 pupils are having much discrepancy between the pupils in Year 6 itself, and also with the Year 5 pupils. They are having attention and complicated socioeconomic problems which cause them having problems on learning, not only in English but also other subjects as well. Carol\'s English mastery level is beyond her age, together with her worldview. Other than that, Janna, Hua Yi, and Yihann are of satisfactory while others are having multiple issues with their learning. The focus of this class is to nurture their discipline and recognise the importance of English.',
+    'Carol continues to excel beyond expectations, completing tasks at an upper-secondary level. Janna, Hua Yi, and Yihann are progressing well and show good understanding. The remaining pupils struggle with motivation and focus. Behaviour management took up significant lesson time today. The priority remains building discipline and engagement.',
+    'The lesson was challenging due to varied readiness levels. Carol required extension materials which were prepared. Janna and Hua Yi worked well together on the main task. Yihann showed good effort. However, several pupils were disengaged and needed constant redirection. Socioeconomic factors continue to affect learning outcomes.',
+    'Writing task revealed the wide gap in ability. Carol wrote an essay beyond Year 6 expectations. Janna and Hua Yi wrote competent paragraphs. Yihann needs vocabulary support. Other pupils struggled to produce coherent sentences. Individual attention is needed but challenging with such diversity in one class.',
+    'Reading comprehension was satisfactory for the higher group. Carol analysed the text critically. Janna, Hua Yi, and Yihann understood the main ideas. The rest of the class had difficulty with vocabulary and comprehension. Guided reading in smaller groups may be more effective than whole-class instruction.',
+    'Speaking activity showed that confidence levels vary greatly. Carol spoke eloquently. Janna and Hua Yi participated with encouragement. Yihann tried but was shy. Most others were reluctant to speak in English. Creating a safe, non-judgmental speaking environment is crucial for this class.',
+    'Attendance and punctuality are ongoing issues affecting learning continuity. When present, Carol, Janna, Hua Yi, and Yihann make good progress. The others fall behind due to irregular attendance. Counselling and parental involvement are needed alongside academic support.',
+    'Carol demonstrated leadership during group work, helping peers with difficult vocabulary. Janna showed patience in explaining concepts to weaker group members. Hua Yi focused well today. Yihann completed the task on time. Other groups needed close supervision to stay on task. Peer mentoring is showing promise.',
+    'The use of real-world contexts helped engage pupils. Carol connected lesson content to current affairs impressively. Janna and Hua Yi enjoyed the discussion. Yihann participated more than usual. However, maintaining the attention of the rest of the class for extended periods remains difficult. Short, varied activities work best.',
+    'Overall, Year 6 remains a challenging class due to the extreme diversity in ability, motivation, and background. Carol needs continuous enrichment. Janna, Hua Yi, and Yihann are on track for UPSR preparation. The rest need basic literacy and numeracy reinforcement alongside English. The focus remains on discipline, attendance, and showing the relevance of English in their lives.',
+  ],
+}
+
+// ── Holidays 2026 ──
+const HOLIDAYS_2026 = [
+  { label: 'Cuti Penggal 1', start: '2026-03-21', end: '2026-03-29' },
+  { label: 'Cuti Pertengahan Tahun', start: '2026-05-23', end: '2026-06-07' },
+  { label: 'Cuti Penggal 2', start: '2026-08-29', end: '2026-09-06' },
+  { label: 'Cuti Akhir Persekolahan', start: '2026-12-05', end: '2026-12-31' },
+]
 </script>
 </body>
 </html>
