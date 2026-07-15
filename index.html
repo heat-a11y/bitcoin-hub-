@@ -516,6 +516,7 @@
                   <div x-show="plan._rekodOpen" x-collapse class="overflow-x-auto rounded-lg border bg-white text-xs">
                     <div class="flex items-center justify-end gap-1 border-b bg-slate-50 px-2 py-1">
                       <span class="mr-auto text-[10px] text-slate-400" x-text="plan.rekodTransit.students.length + ' pupils'"></span>
+                      <button @click.stop="resetRekodPlanToTOV(plan)" class="rounded px-1.5 py-0.5 text-[10px] font-medium text-amber-700 hover:bg-amber-50">&#x1F3AF; TP</button>
                       <button @click.stop="addRekodStudentToPlan(plan)" class="rounded px-1.5 py-0.5 text-[10px] font-medium text-indigo-600 hover:bg-indigo-50">+ Add</button>
                     </div>
                     <table class="w-full min-w-[400px]">
@@ -831,6 +832,9 @@
             <div class="flex gap-2">
               <button @click="addRekodStudent(reflectionYear)" class="inline-flex items-center gap-1 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-medium text-indigo-600 shadow-sm transition-colors hover:bg-indigo-50">
                 <span class="text-base leading-none">+</span> Add Student
+              </button>
+              <button @click="resetRekodToTOV(reflectionYear)" class="inline-flex items-center gap-1 rounded-lg border bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-700 shadow-sm transition-colors hover:bg-amber-100">
+                <span>&#x1F3AF;</span> Generate TP
               </button>
               <button @click="saveRekodData()" class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700">
                 <span>&#x1F4BE;</span> Save Changes
@@ -1500,6 +1504,39 @@ document.addEventListener('alpine:init', () => {
 
     saveRekodData() {
       this.persist()
+    },
+
+    resetRekodToTOV(year) {
+      const original = REKOD_TRANSIT[year]
+      const current = this.rekodTransitData && this.rekodTransitData[year]
+      if (!original || !current) return
+      if (!confirm(`Reset all TP values for ${year} to original TOV from the PDF? This will overwrite current TP values but keep student names and any new rows.`)) return
+      original.students.forEach((origStudent, i) => {
+        if (current.students[i]) {
+          current.students[i].listening = origStudent.listening
+          current.students[i].speaking = origStudent.speaking
+          current.students[i].reading = origStudent.reading
+          current.students[i].writing = origStudent.writing
+          current.students[i].overall = origStudent.overall
+          current.students[i].intervention = origStudent.intervention
+        }
+      })
+    },
+
+    resetRekodPlanToTOV(plan) {
+      const original = REKOD_TRANSIT[plan.yearGroup]
+      if (!original || !plan.rekodTransit) return
+      if (!confirm(`Reset TP values to original TOV for ${plan.yearGroup}?`)) return
+      original.students.forEach((origStudent, i) => {
+        if (plan.rekodTransit.students[i]) {
+          plan.rekodTransit.students[i].listening = origStudent.listening
+          plan.rekodTransit.students[i].speaking = origStudent.speaking
+          plan.rekodTransit.students[i].reading = origStudent.reading
+          plan.rekodTransit.students[i].writing = origStudent.writing
+          plan.rekodTransit.students[i].overall = origStudent.overall
+          plan.rekodTransit.students[i].intervention = origStudent.intervention
+        }
+      })
     },
 
     updateRekodTP(year, studentIdx, skill, value) {
