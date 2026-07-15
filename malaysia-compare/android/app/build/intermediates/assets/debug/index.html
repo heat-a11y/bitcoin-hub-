@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>malaysia-compare — Bossku punya comparison app</title>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #FFF8F0;
+      color: #3A2A1A;
+    }
+    html.dark body {
+      background: #0f172a;
+      color: #f1e8d9;
+    }
+    .font-display { font-family: 'Playfair Display', serif; }
+
+    .batik-header {
+      background:
+        linear-gradient(135deg, rgba(196, 149, 106, 0.10) 0%, transparent 50%),
+        repeating-conic-gradient(rgba(196, 149, 106, 0.03) 0% 25%, transparent 0% 50%) 0 0 / 60px 60px;
+      position: relative;
+    }
+    .batik-header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(79, 121, 66, 0.03) 20px, rgba(79, 121, 66, 0.03) 21px),
+        repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(79, 121, 66, 0.03) 20px, rgba(79, 121, 66, 0.03) 21px);
+      pointer-events: none;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #C4956A; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #8B5A2B; }
+
+    .fade-in { animation: fadeIn 0.35s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+
+    .sidebar-overlay { transition: opacity 0.25s ease; }
+    .sidebar-panel { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .compare-card {
+      transition: all 0.25s ease;
+      border: 1px solid rgba(196, 149, 106, 0.2);
+    }
+    .compare-card:hover {
+      border-color: rgba(196, 149, 106, 0.4);
+      box-shadow: 0 8px 30px rgba(196, 149, 106, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .bar-fill { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    .winner-badge { background: linear-gradient(135deg, #4F7942, #3D5E32); }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+
+    .toggle-track { transition: background 0.25s ease; }
+    .toggle-thumb { transition: transform 0.25s ease; }
+
+    .icon-sm { width: 16px; height: 16px; }
+    .icon-md { width: 20px; height: 20px; }
+    .icon-lg { width: 24px; height: 24px; }
+
+    /* ── Pros/Cons pill toggle ── */
+    .pill-toggle button {
+      transition: all 0.2s ease;
+    }
+
+    /* ── Character cards ── */
+    .character-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .character-card:hover {
+      transform: translateY(-4px) scale(1.01);
+    }
+    .character-card.selected {
+      border-color: #C4956A;
+      box-shadow: 0 0 0 2px #C4956A, 0 8px 30px rgba(196, 149, 106, 0.2);
+    }
+
+    /* ── Stat bar (animated fill) ── */
+    .stat-bar-track { background: rgba(196, 149, 106, 0.1); border-radius: 999px; height: 8px; overflow: hidden; }
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 0;
+    }
+    .stat-bar-fill.animate { width: var(--target); }
+
+    /* ── Initiative cards ── */
+    .initiative-card { transition: all 0.3s ease; }
+    .initiative-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+
+    /* ── Star vote ── */
+    .star-vote .star-btn {
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .star-vote .star-btn:hover { transform: scale(1.2); }
+
+    /* ── Calculator ── */
+    .calc-option {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .calc-option:hover { border-color: #C4956A; background: rgba(196, 149, 106, 0.05); }
+    .calc-option.selected {
+      border-color: #C4956A;
+      background: rgba(196, 149, 106, 0.12);
+      box-shadow: 0 0 0 1px #C4956A;
+    }
+
+    /* ── Inflation timeline ── */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+      background: linear-gradient(90deg, #C4956A40, #C4956A);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #C4956A;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(196, 149, 106, 0.3);
+      transition: transform 0.15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #C4956A;
+      cursor: pointer;
+      border: none;
+    }
+
+    .comp-table th, .comp-table td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(196, 149, 106, 0.1);
+    }
+    .comp-table th {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8B5A2B;
+      background: rgba(196, 149, 106, 0.06);
+    }
+    .comp-table tr:hover td { background: rgba(196, 149, 106, 0.04); }
+
+    .recommendation-tag {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* ── Pulse glow for characters ── */
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 5px rgba(196, 149, 106, 0.2); }
+      50% { box-shadow: 0 0 20px rgba(196, 149, 106, 0.4); }
+    }
+    .glow-pulse { animation: glowPulse 2s ease-in-out infinite; }
+
+    /* ── Dark mode overrides ── */
+    html.dark .dark-card { background: #1e293b; border-color: rgba(196, 149, 106, 0.15); }
+    html.dark .dark-text-muted { color: #94a3b8; }
+    html.dark .dark-border { border-color: rgba(196, 149, 106, 0.1); }
+    html.dark .batik-header { background-color: #1e293b; }
+    html.dark .batik-header::after { opacity: 0.15; }
+
+    /* ── FAB (Teh Tarik) ── */
+    .fab-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 50;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C4956A, #8B5A2B);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(196, 149, 106, 0.4);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+    }
+    .fab-btn:hover {
+      transform: scale(1.1) rotate(-5deg);
+      box-shadow: 0 8px 30px rgba(196, 149, 106, 0.5);
+    }
+    .fab-btn:active { transform: scale(0.95); }
+    .fab-tooltip {
+      position: fixed;
+      bottom: 90px;
+      right: 24px;
+      z-index: 50;
+      background: #1E3A5F;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .fab-tooltip.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Teh Tarik Pour Animation ── */
+    .teh-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .teh-overlay.show { opacity: 1; pointer-events: auto; }
+    .teh-cup {
+      position: relative;
+      width: 120px;
+      height: 140px;
+    }
+    .teh-cup-body {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 110px;
+      border: 3px solid #C4956A;
+      border-radius: 0 0 16px 16px;
+      background: rgba(196, 149, 106, 0.05);
+      overflow: hidden;
+    }
+    .teh-cup-handle {
+      position: absolute;
+      right: -22px;
+      top: 20px;
+      width: 24px;
+      height: 40px;
+      border: 3px solid #C4956A;
+      border-radius: 0 12px 12px 0;
+      border-left: none;
+    }
+    .teh-liquid {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 0;
+      background: linear-gradient(180deg, #D2B48C, #8B5A2B);
+      border-radius: 0 0 13px 13px;
+      transition: height 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .teh-liquid.pour { height: 85%; }
+    .teh-stream {
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 0;
+      background: linear-gradient(180deg, #D2B48C, #8B5A2B);
+      border-radius: 3px;
+      transition: height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+    }
+    .teh-stream.pour { height: 80px; opacity: 1; }
+    .teh-steam {
+      position: absolute;
+      top: -20px;
+      left: 30%;
+      width: 8px;
+      height: 20px;
+      background: rgba(196, 149, 106, 0.2);
+      border-radius: 50%;
+      filter: blur(4px);
+      opacity: 0;
+    }
+    .teh-steam.s1 { animation: steamRise 2s ease-out 0.5s infinite; left: 30%; }
+    .teh-steam.s2 { animation: steamRise 2.5s ease-out 1s infinite; left: 55%; }
+    .teh-steam.s3 { animation: steamRise 1.8s ease-out 1.5s infinite; left: 42%; }
+    @keyframes steamRise {
+      0% { opacity: 0; transform: translateY(0) scale(1); }
+      30% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-60px) scale(2); }
+    }
+    .teh-fact {
+      margin-top: 24px;
+      max-width: 360px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.6s ease 1s;
+    }
+    .teh-fact.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Scroll-triggered reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Dark mode toggle ── */
+    .mode-toggle {
+      transition: all 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .mode-toggle:hover { transform: scale(1.05); }
+    .mode-dot {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Enhanced tab transition ── */
+    .tab-content {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .tab-content.tab-enter {
+      animation: tabEnter 0.4s ease-out;
+    }
+    @keyframes tabEnter {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Skeleton shimmer for loading state ── */
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+    .shimmer {
+      background: linear-gradient(90deg, transparent, rgba(196,149,106,0.08), transparent);
+      background-size: 200px 100%;
+      animation: shimmer 1.5s infinite;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app" class="flex min-h-screen">
+  <div id="mobileOverlay"
+       class="sidebar-overlay fixed inset-0 z-30 bg-navy-900/40 backdrop-blur-sm hidden lg:hidden"
+       onclick="toggleSidebar()"></div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside id="sidebar"
+         class="sidebar-panel fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-[#1E3A5F] text-white lg:static lg:translate-x-0 -translate-x-full"
+         style="background: linear-gradient(180deg, #1E3A5F 0%, #162D4A 100%);">
+    <div class="relative flex items-center gap-3 border-b border-white/10 px-6 py-5 batik-header">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#C4956A] shadow-lg shadow-[#C4956A]/20">
+        <i data-lucide="shrinking-squares" class="text-white icon-md"></i>
+      </div>
+      <div>
+        <h1 class="font-display text-lg font-bold tracking-tight">malaysia-compare</h1>
+        <p class="text-xs text-blue-200/70">Bossku punya comparison app</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 space-y-1 overflow-y-auto px-4 py-5">
+      <p class="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-blue-300/50">Comparison Modules</p>
+      <template id="navTemplate">
+        <button class="nav-btn flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-blue-200/80 transition-all hover:bg-white/10 hover:text-white" data-tab="">
+          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 icon-wrap"></span>
+          <span class="nav-label"></span>
+        </button>
+      </template>
+      <div id="navContainer"></div>
+
+      <div class="mt-8 border-t border-white/10 pt-6">
+        <p class="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-blue-300/50">Kopitiam Chatter</p>
+        <div id="manglishQuote" class="mx-3 rounded-xl bg-white/5 px-4 py-3 text-xs italic leading-relaxed text-blue-200/70"></div>
+      </div>
+    </nav>
+
+    <div class="border-t border-white/10 px-6 py-4 text-center text-[10px] text-blue-300/40">
+      v2.0 · All data for reference only lah<br>
+      <span class="text-[9px]">Dibuat dengan 🧡 kat Malaysia</span>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="flex min-w-0 flex-1 flex-col lg:ml-0 dark:bg-[#0f172a]">
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-[#C4956A]/10 bg-[#FFF8F0]/95 backdrop-blur-md px-4 md:px-6 lg:px-8 dark:bg-[#0f172a]/95 dark:border-[#C4956A]/15">
+      <button onclick="toggleSidebar()" class="-ml-1 rounded-xl p-2 text-[#8B5A2B] hover:bg-[#C4956A]/10 lg:hidden">
+        <i data-lucide="menu" class="icon-md"></i>
+      </button>
+      <div class="flex items-center gap-2.5">
+        <div id="activeIconWrap" class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C4956A]/10">
+          <i id="activeIcon" data-lucide="shield" class="icon-sm text-[#C4956A]"></i>
+        </div>
+        <div>
+          <h2 id="activeTitle" class="text-sm font-bold text-[#3A2A1A] dark:text-[#f1e8d9]">PERKESO vs Private</h2>
+          <p id="activeSubtitle" class="text-[10px] text-[#8B5A2B]/60 dark:text-[#C4956A]/60">SOCSO or Personal Medical Insurance?</p>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-2 sm:gap-3">
+        <!-- Dark mode toggle -->
+        <button id="modeToggle" onclick="toggleDarkMode()"
+                class="mode-toggle flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[10px] font-medium bg-[#C4956A]/10 text-[#8B5A2B] dark:bg-[#C4956A]/20 dark:text-[#D2B48C] border border-[#C4956A]/20">
+          <span class="flex items-center gap-1">
+            <span id="modeIcon" class="text-xs">☀️</span>
+            <span id="modeLabel">Siang</span>
+          </span>
+          <span class="mx-0.5 opacity-30">/</span>
+          <span class="opacity-50">Malam</span>
+        </button>
+        <div class="flex items-center gap-1.5 text-xs text-[#8B5A2B]/50 dark:text-[#D2B48C]/50">
+          <i data-lucide="map-pin" class="icon-sm"></i>
+          <span class="hidden sm:inline">Malaysia</span>
+          <span class="mx-0.5">·</span>
+          <span id="clockDisplay"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- MODULE 1: PERKESO vs PRIVATE INSURANCE      -->
+      <!-- ════════════════════════════════════════════ -->
+      <section id="tab-perkeso" class="tab-content fade-in max-w-6xl mx-auto">
+        <div class="mb-8 batik-header rounded-2xl bg-white dark:bg-[#1e293b] p-6 md:p-8 shadow-sm border border-[#C4956A]/10">
+          <div class="relative">
+            <span class="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#C4956A]/10 px-3 py-1 text-[11px] font-medium text-[#8B5A2B]">
+              <i data-lucide="shield" class="icon-sm"></i>
+              Mana lebih worth? Jom compare!
+            </span>
+            <h3 class="font-display mt-2 text-2xl font-bold text-[#3A2A1A] dark:text-[#f1e8d9] md:text-3xl">PERKESO (SOCSO) vs Private Insurance</h3>
+            <p class="mt-1.5 text-sm text-[#8B5A2B]/70 dark:text-[#D2B48C]/70 max-w-2xl">
+              Both protect you, but in very different ways. One is wajib, one is pilihan.
+              We break down the pros, cons, and help you decide which combo you need.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="tag bg-[#C4956A]/10 text-[#8B5A2B] dark:text-[#D2B48C]"><i data-lucide="users" class="icon-sm"></i> 19M+ covered by PERKESO</span>
+              <span class="tag bg-[#4F7942]/10 text-[#4F7942]"><i data-lucide="building" class="icon-sm"></i> 15+ private insurers</span>
+              <span class="tag bg-[#1E3A5F]/10 text-[#1E3A5F]"><i data-lucide="zap" class="icon-sm"></i> Interactive calculator</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pros/Cons toggle -->
+        <div class="mb-6">
+          <div class="flex items-center justify-center gap-2 pill-toggle">
+            <button id="prosBtn" onclick="setProsConsView('pros')" class="rounded-xl px-5 py-2 text-sm font-medium bg-[#C4956A] text-white shadow-md">✅ Pros</button>
+            <button id="consBtn" onclick="setProsConsView('cons')" class="rounded-xl px-5 py-2 text-sm font-medium bg-white text-[#8B5A2B] border border-[#C4956A]/30 hover:bg-[#C4956A]/5">⚠️ Cons</button>
+          </div>
+        </div>
+
+        <!-- Side-by-side comparison cards -->
+        <div class="grid gap-6 md:grid-cols-2 mb-8" id="perkesoCompareGrid">
+          <!-- PERKESO card -->
+          <div class="compare-card rounded-2xl bg-white dark:bg-[#1e293b] p-6 border-l-4 border-l-[#1E3A5F] pop-in">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1E3A5F]/10">
+                <i data-lucide="building-2" class="icon-sm text-[#1E3A5F]"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-[#1E3A5F]">PERKESO (SOCSO)</h4>
+                <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60">Skim Perlindungan Pekerjaan</p>
+              </div>
+            </div>
+            <div id="perkesoContent" class="space-y-3 text-sm"></div>
+          </div>
+
+          <!-- Private Insurance card -->
+          <div class="compare-card rounded-2xl bg-white dark:bg-[#1e293b] p-6 border-l-4 border-l-[#4F7942] pop-in">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4F7942]/10">
+                <i data-lucide="heart-pulse" class="icon-sm text-[#4F7942]"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-[#4F7942]">Private Insurance</h4>
+                <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60">Medical & Health Coverage</p>
+              </div>
+            </div>
+            <div id="privateContent" class="space-y-3 text-sm"></div>
+          </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="rounded-2xl border border-[#C4956A]/10 bg-white dark:bg-[#1e293b] p-6 shadow-sm mb-8">
+          <h4 class="font-display text-lg font-bold text-[#3A2A1A] dark:text-[#f1e8d9] mb-4">Head-to-Head Comparison</h4>
+          <div class="overflow-x-auto">
+            <table class="comp-table w-full min-w-[500px] text-sm">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>PERKESO (SOCSO)</th>
+                  <th>Private Insurance</th>
+                </tr>
+              </thead>
+              <tbody id="perkesoCompareBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Micro-calculator: Which one do I need? -->
+        <div class="rounded-2xl border border-[#C4956A]/10 bg-white dark:bg-[#1e293b] p-6 md:p-8 shadow-sm">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C4956A]/10">
+              <i data-lucide="calculator" class="icon-sm text-[#C4956A]"></i>
+            </div>
+            <div>
+              <h4 class="font-display text-lg font-bold text-[#3A2A1A] dark:text-[#f1e8d9]">"Which One Do I Need?" Calculator</h4>
+              <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60">Answer a few questions — we recommend your ideal combo, Bossku</p>
+            </div>
+          </div>
+
+          <div id="calcQuestions" class="space-y-5 mb-6"></div>
+
+          <div id="calcResult" class="hidden rounded-xl p-5 border transition-all"></div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- MODULE 2: GOV vs PRIVATE SECTOR             -->
+      <!-- ════════════════════════════════════════════ -->
+      <section id="tab-career" class="tab-content fade-in max-w-6xl mx-auto hidden">
+        <div class="mb-8 batik-header rounded-2xl bg-white dark:bg-[#1e293b] p-6 md:p-8 shadow-sm border border-[#C4956A]/10">
+          <div class="relative">
+            <span class="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#1E3A5F]/10 px-3 py-1 text-[11px] font-medium text-[#1E3A5F]">
+              <i data-lucide="swords" class="icon-sm"></i>
+              Pilih karakter, Bossku!
+            </span>
+            <h3 class="font-display mt-2 text-2xl font-bold text-[#3A2A1A] dark:text-[#f1e8d9] md:text-3xl">Gov vs Private: The Career Showdown</h3>
+            <p class="mt-1.5 text-sm text-[#8B5A2B]/70 dark:text-[#D2B48C]/70 max-w-2xl">
+              One side has pension and stability. The other has bonuses and fast promotions.
+              Choose your character and see how they stack up!
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="tag bg-[#1E3A5F]/10 text-[#1E3A5F]"><i data-lucide="shield" class="icon-sm"></i> 1.6M civil servants</span>
+              <span class="tag bg-[#C4956A]/10 text-[#8B5A2B] dark:text-[#D2B48C]"><i data-lucide="trending-up" class="icon-sm"></i> 8.6M private sector</span>
+              <span class="tag bg-[#4F7942]/10 text-[#4F7942]"><i data-lucide="sparkles" class="icon-sm"></i> Interactive comparison</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Character selection -->
+        <div class="grid gap-6 md:grid-cols-2 mb-8">
+          <div id="char-gov" class="character-card rounded-2xl bg-white dark:bg-[#1e293b] p-6 border-2 border-[#1E3A5F]/20 glow-pulse" onclick="selectCharacter('gov')">
+            <div class="text-center mb-4">
+              <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#1E3A5F]/10 mb-3">
+                <span class="text-3xl">🏛️</span>
+              </div>
+              <h4 class="font-display text-xl font-bold text-[#1E3A5F]">The Stable Kakitangan</h4>
+              <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60 mt-1">"Kerajaan punya, confirmed!"</p>
+            </div>
+            <div class="space-y-2 text-sm text-[#3A2A1A]/80 dark:text-[#f1e8d9]/80">
+              <p>✅ Unrivaled job security (almost impossible to fire)</p>
+              <p>✅ Pension for life + LPPSA housing loans</p>
+              <p>✅ Fixed annual increments (no need to fight)</p>
+              <p>⏳ Slower bureaucratic pace (standard kerajaan)</p>
+              <p>❌ Limited salary ceiling — max out after 20+ years</p>
+            </div>
+            <div class="mt-4 text-center">
+              <span class="tag bg-[#1E3A5F]/10 text-[#1E3A5F] text-xs font-bold">PILIH SAYA</span>
+            </div>
+          </div>
+
+          <div id="char-pvt" class="character-card rounded-2xl bg-white dark:bg-[#1e293b] p-6 border-2 border-[#C4956A]/20" onclick="selectCharacter('pvt')">
+            <div class="text-center mb-4">
+              <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#C4956A]/10 mb-3">
+                <span class="text-3xl">💼</span>
+              </div>
+              <h4 class="font-display text-xl font-bold text-[#C4956A]">The Corporate Hustler</h4>
+              <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60 mt-1">"Hustle now, retire later!"</p>
+            </div>
+            <div class="space-y-2 text-sm text-[#3A2A1A]/80 dark:text-[#f1e8d9]/80">
+              <p>✅ Faster career ladder (promotion in 2 years possible)</p>
+              <p>✅ Higher starting salary potential (fresh grad RM4k-6k)</p>
+              <p>✅ Annual bonuses (1-6 months!) plus perks</p>
+              <p>⏳ High OT culture (9-to-5 is a myth)</p>
+              <p>❌ Vulnerable to layoffs / retrenchment</p>
+            </div>
+            <div class="mt-4 text-center">
+              <span class="tag bg-[#C4956A]/10 text-[#8B5A2B] dark:text-[#D2B48C] text-xs font-bold">PILIH SAYA</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats comparison (appears after selection) -->
+        <div id="careerStats" class="hidden rounded-2xl border border-[#C4956A]/10 bg-white dark:bg-[#1e293b] p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-6">
+            <h4 class="font-display text-lg font-bold text-[#3A2A1A] dark:text-[#f1e8d9]">Stat Comparison</h4>
+            <span class="text-xs text-[#8B5A2B]/50 dark:text-[#D2B48C]/50">Based on average data, Bossku</span>
+          </div>
+          <div id="statBars" class="space-y-5"></div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- MODULE 3: GOVERNMENT INITIATIVES            -->
+      <!-- ════════════════════════════════════════════ -->
+      <section id="tab-initiatives" class="tab-content fade-in max-w-6xl mx-auto hidden">
+        <div class="mb-8 batik-header rounded-2xl bg-white dark:bg-[#1e293b] p-6 md:p-8 shadow-sm border border-[#C4956A]/10">
+          <div class="relative">
+            <span class="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#4F7942]/10 px-3 py-1 text-[11px] font-medium text-[#4F7942]">
+              <i data-lucide="clipboard-check" class="icon-sm"></i>
+              Report Card: The Good & The "Boleh Improve"
+            </span>
+            <h3 class="font-display mt-2 text-2xl font-bold text-[#3A2A1A] dark:text-[#f1e8d9] md:text-3xl">Malaysian Government Initiatives</h3>
+            <p class="mt-1.5 text-sm text-[#8B5A2B]/70 dark:text-[#D2B48C]/70 max-w-2xl">
+              A balanced, objective look at what's working and what's... still in the "semak semula" phase.
+              Rate each initiative yourself!
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="tag bg-[#4F7942]/10 text-[#4F7942]"><i data-lucide="thumbs-up" class="icon-sm"></i> 6 initiatives</span>
+              <span class="tag bg-[#C4956A]/10 text-[#8B5A2B] dark:text-[#D2B48C]"><i data-lucide="message-square" class="icon-sm"></i> Rakyat Rating</span>
+              <span class="tag bg-[#1E3A5F]/10 text-[#1E3A5F]"><i data-lucide="bar-chart-3" class="icon-sm"></i> Live vote tracking</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2" id="initiativesGrid"></div>
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- MODULE 4: FIAT vs BITCOIN                   -->
+      <!-- ════════════════════════════════════════════ -->
+      <section id="tab-fiat" class="tab-content fade-in max-w-6xl mx-auto hidden">
+        <div class="mb-8 batik-header rounded-2xl bg-white dark:bg-[#1e293b] p-6 md:p-8 shadow-sm border border-[#C4956A]/10">
+          <div class="relative">
+            <span class="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#C4956A]/10 px-3 py-1 text-[11px] font-medium text-[#8B5A2B]">
+              <i data-lucide="landmark" class="icon-sm"></i>
+              Ringgit vs Bitcoin — the ultimate showdown
+            </span>
+            <h3 class="font-display mt-2 text-2xl font-bold text-[#3A2A1A] dark:text-[#f1e8d9] md:text-3xl">Fiat Standard vs Bitcoin Standard</h3>
+            <p class="mt-1.5 text-sm text-[#8B5A2B]/70 dark:text-[#D2B48C]/70 max-w-2xl">
+              Central bank digital vs decentralised digital. Ringgit vs Satoshi.
+              See how your money stacks up in the battle for the future of value.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="tag bg-[#C4956A]/10 text-[#8B5A2B] dark:text-[#D2B48C]"><i data-lucide="banknote" class="icon-sm"></i> RM regulated by BNM</span>
+              <span class="tag bg-[#4F7942]/10 text-[#4F7942]"><i data-lucide="bitcoin" class="icon-sm"></i> BTC: 21M supply cap</span>
+              <span class="tag bg-[#1E3A5F]/10 text-[#1E3A5F]"><i data-lucide="trending-up" class="icon-sm"></i> Inflation calculator</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Side-by-side dashboard cards -->
+        <div class="grid gap-6 md:grid-cols-2 mb-8">
+          <div class="compare-card rounded-2xl bg-white dark:bg-[#1e293b] p-6 border-l-4 border-l-[#C4956A] pop-in">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C4956A]/10">
+                <i data-lucide="banknote" class="icon-sm text-[#C4956A]"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-[#8B5A2B] dark:text-[#D2B48C]">Fiat — Malaysian Ringgit (MYR)</h4>
+                <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60">Centralized · Legal Tender</p>
+              </div>
+            </div>
+            <div class="space-y-3 text-sm text-[#3A2A1A]/80 dark:text-[#f1e8d9]/80" id="fiatDashboard"></div>
+          </div>
+
+          <div class="compare-card rounded-2xl bg-white dark:bg-[#1e293b] p-6 border-l-4 border-l-[#4F7942] pop-in">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4F7942]/10">
+                <i data-lucide="bitcoin" class="icon-sm text-[#4F7942]"></i>
+              </div>
+              <div>
+                 <h4 class="font-bold text-[#4F7942] dark:text-[#6BAF5A]">Bitcoin (BTC)</h4>
+                <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60">Decentralized · Digital Asset</p>
+              </div>
+            </div>
+            <div class="space-y-3 text-sm text-[#3A2A1A]/80 dark:text-[#f1e8d9]/80" id="btcDashboard"></div>
+          </div>
+        </div>
+
+        <!-- Comparison table -->
+        <div class="rounded-2xl border border-[#C4956A]/10 bg-white dark:bg-[#1e293b] p-6 shadow-sm mb-8">
+          <h4 class="font-display text-lg font-bold text-[#3A2A1A] dark:text-[#f1e8d9] mb-4">Side-by-Side Comparison</h4>
+          <div class="overflow-x-auto">
+            <table class="comp-table w-full min-w-[500px] text-sm">
+              <thead>
+                <tr>
+                  <th>Dimension</th>
+                  <th>Fiat (Ringgit MYR)</th>
+                  <th>Bitcoin (BTC)</th>
+                </tr>
+              </thead>
+              <tbody id="fiatCompareBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Inflation Calculator -->
+        <div class="rounded-2xl border border-[#C4956A]/10 bg-white dark:bg-[#1e293b] p-6 md:p-8 shadow-sm">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C4956A]/10">
+              <i data-lucide="chart-line" class="icon-sm text-[#C4956A]"></i>
+            </div>
+            <div>
+              <h4 class="font-display text-lg font-bold text-[#3A2A1A] dark:text-[#f1e8d9]">Inflation Calculator</h4>
+              <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60">See how much 1 Nasi Lemak costs over time</p>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-[#3A2A1A] dark:text-[#f1e8d9] mb-2">
+              Select year: <span id="inflationYear" class="font-bold text-[#C4956A]">2025</span>
+            </label>
+            <input type="range" id="inflationSlider" min="2024" max="2034" value="2025" step="1"
+                   oninput="updateInflationCalc(this.value)" />
+            <div class="flex justify-between text-xs text-[#8B5A2B]/50 dark:text-[#D2B48C]/50 mt-1">
+              <span>2024</span>
+              <span>Today</span>
+              <span>2034</span>
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="rounded-xl bg-[#C4956A]/5 dark:bg-[#C4956A]/10 p-4 text-center">
+              <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60 mb-1">Nasi Lemak (Fiat MYR)</p>
+              <p id="fiatPrice" class="text-2xl font-bold text-[#8B5A2B] dark:text-[#D2B48C]">RM 3.50</p>
+              <p id="fiatChange" class="text-xs mt-1"></p>
+            </div>
+            <div class="rounded-xl bg-[#4F7942]/5 dark:bg-[#4F7942]/10 p-4 text-center">
+              <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60 mb-1">Nasi Lemak (BTC)</p>
+              <p id="btcPrice" class="text-2xl font-bold text-[#4F7942] dark:text-[#6BAF5A]">0.000035 BTC</p>
+              <p id="btcChange" class="text-xs mt-1"></p>
+            </div>
+            <div class="rounded-xl bg-[#1E3A5F]/5 dark:bg-[#1E3A5F]/10 p-4 text-center">
+              <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60 mb-1">BTC Price (USD)</p>
+              <p id="btcUsdPrice" class="text-2xl font-bold text-[#1E3A5F] dark:text-[#6B9FC4]">$100,000</p>
+              <p id="btcUsdChange" class="text-xs mt-1"></p>
+            </div>
+          </div>
+
+          <div class="mt-6 rounded-xl bg-[#1E3A5F]/5 dark:bg-[#1E3A5F]/10 p-4">
+            <p class="text-xs text-[#8B5A2B]/60 dark:text-[#D2B48C]/60 mb-2">10-Year Price Trend</p>
+            <div class="space-y-2" id="inflationBars"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ FAB: Order Teh Tarik ═══ -->
+      <div class="fab-tooltip" id="fabTooltip">Order Teh Tarik, Bossku?</div>
+      <button class="fab-btn" id="fabBtn" onclick="openTehTarik()" aria-label="Order Teh Tarik">
+        <i data-lucide="coffee" class="icon-lg"></i>
+      </button>
+
+      <!-- ═══ TEH TARIK MODAL ═══ -->
+      <div class="teh-overlay" id="tehOverlay" onclick="closeTehTarik(event)">
+        <div class="flex flex-col items-center" onclick="event.stopPropagation()">
+          <div class="teh-cup">
+            <div class="teh-cup-body" id="tehCupBody">
+              <div class="teh-liquid" id="tehLiquid"></div>
+              <div class="teh-steam s1"></div>
+              <div class="teh-steam s2"></div>
+              <div class="teh-steam s3"></div>
+            </div>
+            <div class="teh-cup-handle"></div>
+            <div class="teh-stream" id="tehStream"></div>
+          </div>
+          <div class="teh-fact" id="tehFact">
+            <div class="rounded-2xl bg-white dark:bg-[#1e293b] p-5 shadow-xl border border-[#C4956A]/20 max-w-sm">
+              <div class="flex items-center gap-2 mb-2">
+                <i data-lucide="coffee" class="icon-sm text-[#C4956A]"></i>
+                <span class="text-sm font-bold text-[#8B5A2B] dark:text-[#D2B48C]">☕ Teh Tarik Fact!</span>
+              </div>
+              <p id="tehFactText" class="text-sm text-[#3A2A1A]/80 dark:text-[#f1e8d9]/80 leading-relaxed"></p>
+              <button onclick="closeTehTarik()"
+                      class="mt-4 w-full rounded-xl bg-[#C4956A] py-2 text-sm font-semibold text-white hover:bg-[#8B5A2B] transition-colors">
+                Sedap! Another one?
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ FOOTER ═══ -->
+      <footer class="mt-8 border-t border-[#C4956A]/10 dark:border-[#C4956A]/15 px-4 py-6 text-center text-[11px] text-[#8B5A2B]/40 dark:text-[#C4956A]/40">
+        <p>malaysia-compare v2.0 — All data for reference purposes only, Bossku.</p>
+        <p class="mt-1">Made with <span class="text-red-400">❤</span> in Malaysia · Jangan marah, we try our best lah!</p>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+// ── Manglish quotes ──
+// ── Teh Tarik Facts ──
+const tehFacts = [
+  "PERKESO covers you even if you get into an accident on the way to buy nasi lemak for lunch!",
+  "The name 'Teh Tarik' means 'pulled tea' — the drink is poured back and forth to create foam.",
+  "My50 pass costs just RM50/month for unlimited public transport in KL — best deal in Malaysia!",
+  "Bitcoin has a hard cap of 21 million coins. Only about 1.5 million are left to mine.",
+  "Malaysia's first civil service pension was introduced in 1951 under the British administration.",
+  "PERKESO was established in 1971 and now covers over 19 million workers.",
+  "The Ringgit symbol 'RM' stands for 'Ringgit Malaysia' — ringgit means 'jagged' in Malay.",
+  "JENDELA aims to provide 100% 4G coverage by 2025. So far, we've hit 96%!",
+  "LPPSA housing loans for civil servants start at just 4% interest — lower than any bank.",
+  "Malaysia was one of the first countries in the world to introduce a national identity card (MyKad) in 2001.",
+  "The first roti canai in Malaysia was made by Indian-Muslim immigrants in the 1920s.",
+  "e-Belia gave RM200 to 2 million youths — that's RM400 million injected into the digital economy.",
+  "1BestariNet cost RM4 billion but only 20% of schools actively used the Frog VLE platform.",
+  "BNM has raised the OPR (Overnight Policy Rate) 4 times since 2022 to fight inflation.",
+  "The Securities Commission (SC) recognizes Bitcoin as a digital asset, not legal tender.",
+  "MyJPJ app had over 5 million downloads in the first month — then the server crashed.",
+  "A civil servant's pension is calculated as 1/600th of salary for each month served.",
+  "Private medical insurance premiums in Malaysia increase by 15-30% every 5 years due to age banding.",
+];
+
+const quotes = [
+  "PERKESO cover commuting accident, but what about my tooth implant?",
+  "Kerja kerajaan: confirm sampai pencen. Kerja swasta: confirm kena OT.",
+  "My50 pass RM50 sebulan — best deal in Malaysia, no cap!",
+  "1BestariNet kena RM4 billion tapi slow macam siput?",
+  "Bitcoin naik 100%, then turun 30% — standard Monday lah.",
+  "Ringgit dulu RM3.50 nasi lemak, sekarang RM7.00. Sapa rasa?",
+  "PADU database: idea bagus, execution harap-harap lah.",
+  "Private insurance mahal, but at least you can choose hospital.",
+  "Gov sector got pension, private sector got bonus. Dua pun power.",
+  "Kalau BTC $1M satu coin, nasi lemak 0.0000035 BTC. Jimat!",
+  "Civil servants got LPPSA loan 4% — best rate in town!",
+  "JENDELA got 4G in kampung? Confirm or not?"
+];
+
+// ── Navigation tabs ──
+const tabs = [
+  { id: 'perkeso',     label: 'PERKESO vs Private',   icon: 'shield',           subtitle: 'SOCSO vs Insurance' },
+  { id: 'career',      label: 'Gov vs Private',       icon: 'swords',           subtitle: 'Career Showdown' },
+  { id: 'initiatives', label: 'Gov Initiatives',      icon: 'clipboard-check',  subtitle: 'Report Card & Ratings' },
+  { id: 'fiat',        label: 'Fiat vs Bitcoin',       icon: 'landmark',         subtitle: 'Ringgit & BTC' },
+];
+
+// ══════════════════════════════════════════════════
+// DATA: PERKESO vs Private Insurance
+// ══════════════════════════════════════════════════
+let prosConsView = 'pros';
+
+const perkesoPros = [
+  'Auto-deducted from salary (you don\'t feel it lah)',
+  'Covers commuting accidents (Skim Keilatan)',
+  'Invalidity pension & dependent benefits',
+  'Return of contributions (if no claims)',
+  'No medical underwriting — semua orang cover',
+  'High affordability — only ~RM 5-30/month contribution',
+];
+const perkesoCons = [
+  'Limited medical card — no private hospital choice',
+  'Does NOT cover full outpatient treatment',
+  'No cashless admission at private hospitals',
+  'Benefits tied to salary bracket, not actual cost',
+  'Slow approval process for some claims',
+  'No maternity or dental coverage',
+];
+const privatePros = [
+  'Choose any private hospital (Gleneagles, Pantai, etc.)',
+  'Cashless admission — just show card',
+  'Customizable coverage (maternity, dental, critical illness)',
+  'Higher annual limits (RM 1M+)',
+  'Fast claims processing (especially top-tier plans)',
+  'Worldwide coverage options available',
+];
+const privateCons = [
+  'High premiums — RM 200-800/month for good coverage',
+  'Medical underwriting — pre-existing conditions excluded',
+  'Annual premium increases (age-banded pricing)',
+  'No commuting accident coverage (unless you add rider)',
+  'Policy can be non-renewed (insurer discretion)',
+  'Co-payment / deductible may apply for certain plans',
+];
+
+const perkesoCompare = [
+  { feature: 'Monthly Cost', perkeso: 'RM 5 – 30 (auto deduct)', private: 'RM 200 – 800+ (you pay)' },
+  { feature: 'Coverage Trigger', perkeso: 'Work-related injury / commuting', private: 'Any illness or accident' },
+  { feature: 'Hospital Choice', perkeso: 'Government hospitals only', private: 'Any private hospital' },
+  { feature: 'Pre-existing Conditions', perkeso: 'Accepted (no underwriting)', private: 'Usually excluded' },
+  { feature: 'Dental / Maternity', perkeso: 'Not covered', private: 'Can be added (rider)' },
+  { feature: 'Cashless Admission', perkeso: 'No', private: 'Yes (most plans)' },
+  { feature: 'Dependents Covered', perkeso: 'Spouse & kids (small benefit)', private: 'Can add family members' },
+  { feature: 'Commuting Accident', perkeso: 'Covered (Skem Keilatan)', private: 'Not covered (unless rider)' },
+  { feature: 'Portability', perkeso: 'Tied to employment', private: 'Portable (you own the policy)' },
+  { feature: 'Long-term Value', perkeso: 'Pays back contribution if no claim', private: 'Use-it-or-lose-it (no cash value)' },
+];
+
+// Calculator questions
+const calcQuestions = [
+  { id: 'employed', question: 'Are you currently employed?', options: ['Yes, full-time', 'Yes, part-time', 'No'] },
+  { id: 'commute', question: 'Do you commute to work — especially by motorcycle?', options: ['Yes, motorcycle', 'Yes, car/public transport', 'No (WFH / not working)'] },
+  { id: 'privateHospital', question: 'Is private hospital access important to you?', options: ['Very important', 'Somewhat important', 'Not important'] },
+  { id: 'preExisting', question: 'Do you have any pre-existing medical conditions?', options: ['Yes', 'No', 'Not sure'] },
+  { id: 'budget', question: 'How much can you allocate monthly for insurance?', options: ['Under RM 100', 'RM 100 – 300', 'RM 300+'] },
+];
+
+// ══════════════════════════════════════════════════
+// DATA: Gov vs Private Sector
+// ══════════════════════════════════════════════════
+const careerStatsData = {
+  gov: [
+    { label: 'Job Security', gov: 95, pvt: 55, icon: 'shield-check' },
+    { label: 'Starting Salary', gov: 55, pvt: 75, icon: 'banknote' },
+    { label: 'Salary Ceiling', gov: 40, pvt: 85, icon: 'trending-up' },
+    { label: 'Work-Life Balance', gov: 85, pvt: 45, icon: 'sun' },
+    { label: 'Career Growth Speed', gov: 35, pvt: 85, icon: 'zap' },
+    { label: 'Bonus Potential', gov: 25, pvt: 90, icon: 'gift' },
+    { label: 'Pension / Retirement', gov: 95, pvt: 50, icon: 'umbrella' },
+  ],
+  pvt: [
+    { label: 'Job Security', gov: 95, pvt: 55, icon: 'shield-check' },
+    { label: 'Starting Salary', gov: 55, pvt: 75, icon: 'banknote' },
+    { label: 'Salary Ceiling', gov: 40, pvt: 85, icon: 'trending-up' },
+    { label: 'Work-Life Balance', gov: 85, pvt: 45, icon: 'sun' },
+    { label: 'Career Growth Speed', gov: 35, pvt: 85, icon: 'zap' },
+    { label: 'Bonus Potential', gov: 25, pvt: 90, icon: 'gift' },
+    { label: 'Pension / Retirement', gov: 95, pvt: 50, icon: 'umbrella' },
+  ],
+};
+
+// ══════════════════════════════════════════════════
+// DATA: Gov Initiatives
+// ══════════════════════════════════════════════════
+const initiatives = [
+  {
+    name: 'My50 Unlimited Travel Pass',
+    good: 'RM 50 for unlimited public transport in KL/Klang Valley. Massive savings for commuters! Over 200K passes sold.',
+    couldBe: 'Coverage limited to Klang Valley — Penang, Johor, and others still waiting. Also, no integration with Grab or e-hailing.',
+    icon: 'train-track',
+    color: 'border-l-[#4F7942]',
+  },
+  {
+    name: 'e-Belia / e-Pemuda Digital Wallet',
+    good: 'RM 200 one-time credit for youth — directly helps with daily spending. Digital adoption booster for the younger generation.',
+    couldBe: 'One-off payment (not sustainable). Some youth reported difficulty claiming due to app glitches and verification issues.',
+    icon: 'wallet',
+    color: 'border-l-[#4F7942]',
+  },
+  {
+    name: 'JENDELA (Broadband Expansion)',
+    good: '4G coverage from 91% to 96%+ nationwide. Fixed broadband prices dropped 30%. Internet access improved significantly.',
+    couldBe: 'Actual speeds still below advertised in many rural areas. 5G rollout slow and fragmented between telcos.',
+    icon: 'wifi',
+    color: 'border-l-[#1E3A5F]',
+  },
+  {
+    name: 'MyJPJ / Digital Road Tax',
+    good: 'No more sticking road tax on windscreen. Digital license and summons checking — very convenient, modern approach.',
+    couldBe: 'App had major launch issues (server crashed). Some JPJ counters still insist on physical copies — half-baked transition.',
+    icon: 'smartphone',
+    color: 'border-l-[#1E3A5F]',
+  },
+  {
+    name: '1BestariNet (Historical)',
+    good: 'Vision was right — connect all 10,000+ schools with 4G/VDSL. First large-scale edtech project in Malaysia.',
+    couldBe: 'RM 4 billion spent but slow speeds, poor maintenance. Frog VLE platform was clunky and underutilised. Lesson learned for future projects.',
+    icon: 'book-open',
+    color: 'border-l-[#C4956A]',
+  },
+  {
+    name: 'PADU Database',
+    good: 'Single unified database for targeted subsidies — better than the fragmented system before. Good data centralisation intent.',
+    couldBe: 'Initial rollout full of friction: data errors, login problems, privacy concerns. Many rakyat couldn\'t even access their own profiles.',
+    icon: 'database',
+    color: 'border-l-[#C4956A]',
+  },
+];
+
+// ══════════════════════════════════════════════════
+// DATA: Fiat vs Bitcoin
+// ══════════════════════════════════════════════════
+const fiatDashboard = [
+  { label: 'Issued by', value: 'Bank Negara Malaysia (BNM)', icon: 'landmark' },
+  { label: 'Supply', value: 'Unlimited (can print more)', icon: 'printer' },
+  { label: 'Legal Status', value: 'Legal tender in Malaysia', icon: 'gavel' },
+  { label: 'Inflation (avg)', value: '2.5% – 3.5% per year', icon: 'trending-up' },
+  { label: 'Privacy', value: 'Government can track transactions', icon: 'eye' },
+  { label: 'Volatility', value: 'Stable (pegged to economy)', icon: 'equal' },
+];
+
+const btcDashboard = [
+  { label: 'Issued by', value: 'No one — decentralized network', icon: 'globe' },
+  { label: 'Supply', value: 'Hard-capped at 21 million', icon: 'infinity' },
+  { label: 'Legal Status', value: 'Digital asset (not legal tender)', icon: 'file-text' },
+  { label: 'Inflation (avg)', value: '~1.7% (reducing by half every 4 years)', icon: 'trending-down' },
+  { label: 'Privacy', value: 'Pseudonymous (not fully anonymous)', icon: 'eye-off' },
+  { label: 'Volatility', value: 'High (30-80% annual swings)', icon: 'zap' },
+];
+
+const fiatCompare = [
+  { dim: 'Control', fiat: 'Centralized (BNM)', btc: 'Decentralized (no single owner)' },
+  { dim: 'Supply Cap', fiat: 'No cap — infinite printing possible', btc: '21 million coins — hard limit' },
+  { dim: 'Legal in Malaysia', fiat: 'Yes — legal tender', btc: 'Not legal tender (SC regulated asset)' },
+  { dim: 'Transaction Speed', fiat: 'Instant (bank transfer / DuitNow)', btc: '10-60 mins (block confirmations)' },
+  { dim: 'Transaction Cost', fiat: 'Cheap (RM 0.10-1.00)', btc: 'Variable (RM 2-30 per tx)' },
+  { dim: 'Store of Value', fiat: 'Loses value (inflation)', btc: 'Hard money (deflationary)' },
+  { dim: 'Can be Frozen?', fiat: 'Yes (bank can freeze)', btc: 'Extremely difficult (no single point)' },
+  { dim: 'Accepted Where?', fiat: 'Everywhere in Malaysia', btc: 'Limited (selected merchants, globally)' },
+  { dim: 'Privacy', fiat: 'KYC required for everything', btc: 'Optional (self-custody, no ID needed)' },
+  { dim: 'Volatility', fiat: 'Low (±1-2% annually vs USD)', btc: 'High (±30-80% annually)' },
+];
+
+// ══════════════════════════════════════════════════
+// APP STATE
+// ══════════════════════════════════════════════════
+let activeTab = 'perkeso';
+let selectedCharacter = null;
+let calcAnswers = {};
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function init() {
+  renderNav();
+  renderPerkeso();
+  renderFiatDashboard();
+  renderFiatCompare();
+  renderInitiatives();
+  renderCalculator();
+  renderInflationBars();
+  switchTab('perkeso');
+  updateClock();
+  setInterval(updateClock, 1000);
+  showRandomQuote();
+  setInterval(showRandomQuote, 8000);
+  lucide.createIcons();
+}
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function renderNav() {
+  const container = document.getElementById('navContainer');
+  const template = document.getElementById('navTemplate');
+  tabs.forEach(t => {
+    const clone = template.content.cloneNode(true);
+    const btn = clone.querySelector('.nav-btn');
+    btn.dataset.tab = t.id;
+    btn.onclick = () => switchTab(t.id);
+    clone.querySelector('.nav-label').textContent = t.label;
+    const wrap = clone.querySelector('.icon-wrap');
+    const icon = document.createElement('i');
+    icon.dataset.lucide = t.icon;
+    icon.className = 'icon-sm';
+    wrap.appendChild(icon);
+    container.appendChild(clone);
+  });
+  setTimeout(() => lucide.createIcons(), 0);
+}
+
+function switchTab(id) {
+  activeTab = id;
+  const tab = tabs.find(t => t.id === id);
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.toggle('bg-white/15', btn.dataset.tab === id);
+    btn.classList.toggle('text-white', btn.dataset.tab === id);
+    btn.classList.toggle('text-blue-200/80', btn.dataset.tab !== id);
+  });
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  const section = document.getElementById(`tab-${id}`);
+  if (section) {
+    section.classList.remove('hidden');
+    section.classList.remove('fade-in');
+    void section.offsetWidth;
+    section.classList.add('fade-in');
+  }
+  document.getElementById('activeTitle').textContent = tab.label;
+  document.getElementById('activeSubtitle').textContent = tab.subtitle;
+  const wrap = document.getElementById('activeIconWrap');
+  wrap.innerHTML = '';
+  const icon = document.createElement('i');
+  icon.dataset.lucide = tab.icon;
+  icon.className = 'icon-sm text-[#C4956A]';
+  wrap.appendChild(icon);
+  setTimeout(() => lucide.createIcons(), 0);
+  if (window.innerWidth < 1024) toggleSidebar();
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('mobileOverlay');
+  const isOpen = !sidebar.classList.contains('-translate-x-full');
+  sidebar.classList.toggle('-translate-x-full', isOpen);
+  overlay.classList.toggle('hidden', isOpen);
+}
+
+function updateClock() {
+  const now = new Date();
+  const opts = { timeZone: 'Asia/Kuala_Lumpur', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+  document.getElementById('clockDisplay').textContent = new Intl.DateTimeFormat('en-MY', opts).format(now);
+}
+
+function showRandomQuote() {
+  document.getElementById('manglishQuote').textContent = '"' + quotes[Math.floor(Math.random() * quotes.length)] + '"';
+}
+
+function ratingBar(rating) {
+  const pct = (rating / 5) * 100;
+  return `<div class="h-1.5 w-full rounded-full bg-gray-100"><div class="bar-fill h-1.5 rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#C4956A,#4F7942)"></div></div>`;
+}
+
+// ══════════════════════════════════════════════════
+// MODULE 1: PERKESO vs PRIVATE INSURANCE
+// ══════════════════════════════════════════════════
+function renderPerkeso() {
+  renderProsCons();
+  renderCompareTable();
+}
+
+function renderProsCons() {
+  const perkesoEl = document.getElementById('perkesoContent');
+  const privateEl = document.getElementById('privateContent');
+  const items = prosConsView === 'pros'
+    ? { a: perkesoPros, b: privatePros, label: '✅ Pros' }
+    : { a: perkesoCons, b: privateCons, label: '⚠️ Cons' };
+
+  perkesoEl.innerHTML = items.a.map(p =>
+    `<div class="flex items-start gap-2.5">
+      <span class="mt-0.5 shrink-0 text-sm">${prosConsView === 'pros' ? '✅' : '⚠️'}</span>
+      <span class="text-[#3A2A1A]/80 dark:text-[#f1e8d9]/80">${p}</span>
+    </div>`
+  ).join('');
+
+  privateEl.innerHTML = items.b.map(p =>
+    `<div class="flex items-start gap-2.5">
+      <span class="mt-0.5 shrink-0 text-sm">${prosConsView === 'pros' ? '✅' : '⚠️'}</span>
+      <span class="text-[#3A2A1A]/80 dark:text-[#f1e8d9]/80">${p}</span>
+    </div>`
+  ).join('');
+}
+
+function setProsConsView(view) {
+  prosConsView = view;
+  document.getElementById('prosBtn').className = view === 'pros'
+    ? 'rounded-xl px-5 py-2 text-sm font-medium bg-[#C4956A] text-white shadow-md'
+    : 'rounded-xl px-5 py-2 text-sm font-medium bg-white dark:bg-[#1e293b] text-[#8B5A2B] dark:text-[#D2B48C] border border-[#C4956A]/30 hover:bg-[#C4956A]/5';
+  document.getElementById('consBtn').className = view === 'cons'
+    ? 'rounded-xl px-5 py-2 text-sm font-medium bg-[#C4956A] text-white shadow-md'
+    : 'rounded-xl px-5 py-2 text-sm font-medium bg-white text-[#8B5A2B] border border-[#C4956A]/30 hover:bg-[#C4956A]/5';
+  renderProsCons();
+}
+
+function renderCompareTable() {
+  const tbody = document.getElementById('perkesoCompareBody');
+  tbody.innerHTML = perkesoCompare.map(r =>
+    `<tr>
+      <td class="font-medium text-[#3A2A1A] dark:text-[#f1e8d9]">${r.feature}</td>
+      <td class="text-[#1E3A5F]/80 dark:text-[#6B9FC4]/80">${r.perkeso}</td>
+      <td class="text-[#4F7942]/80 dark:text-[#6BAF5A]/80">${r.private}</td>
+    </tr>`
+  ).join('');
+}
+
+// ── Calculator ──
+function renderCalculator() {
+  const container = document.getElementById('calcQuestions');
+  container.innerHTML = calcQuestions.map((q, qi) => `
+    <div class="calc-question" data-qid="${q.id}">
+      <p class="text-sm font-medium text-[#3A2A1A] dark:text-[#f1e8d9] mb-2">${qi + 1}. ${q.question}</p>
+      <div class="flex flex-wrap gap-2">
+        ${q.options.map(o =>
+          `<button class="calc-option rounded-xl border border-[#C4956A]/20 px-4 py-2 text-xs font-medium text-[#3A2A1A]/70 dark:text-[#f1e8d9]/70 bg-white dark:bg-[#1e293b]"
+                    data-qid="${q.id}" data-value="${o}" onclick="selectCalcOption('${q.id}','${o}')">${o}</button>`
+        ).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectCalcOption(qid, value) {
+  calcAnswers[qid] = value;
+  document.querySelectorAll(`.calc-option[data-qid="${qid}"]`).forEach(el => {
+    el.classList.toggle('selected', el.dataset.value === value);
+    el.classList.toggle('bg-[#C4956A]/10', el.dataset.value === value);
+    el.classList.toggle('text-white', false);
+  });
+  updateCalcResult();
+}
+
+function updateCalcResult() {
+  const answered = calcQuestions.filter(q => calcAnswers[q.id]);
+  if (answered.length < calcQuestions.length) {
+    document.getElementById('calcResult').classList.add('hidden');
+    return;
+  }
+
+  const a = calcAnswers;
+  const isEmployed = a.employed === 'Yes, full-time' || a.employed === 'Yes, part-time';
+  const isMotorcycle = a.commute === 'Yes, motorcycle';
+  const wantsPrivate = a.privateHospital === 'Very important';
+  const hasPreExisting = a.preExisting === 'Yes';
+  const canAfford = a.budget === 'RM 300+' || a.budget === 'RM 100 – 300';
+
+  let perkesoRec = 'Recommended';
+  let privateRec = 'Recommended';
+  let perkesoReason = '';
+  let privateReason = '';
+  let verdict = '';
+
+  if (isEmployed || isMotorcycle) {
+    perkesoRec = 'Strongly Recommended';
+    perkesoReason = isMotorcycle
+      ? 'You commute by motorcycle — PERKESO covers commuting accidents (Skim Keilatan) which no private plan includes.'
+      : 'You\'re employed — PERKESO is auto-deducted and gives you basic invalidity coverage.';
+  } else {
+    perkesoRec = 'Optional';
+    perkesoReason = 'Not employed, so no mandatory PERKESO. Consider voluntary contribution if you want basic protection.';
+  }
+
+  if (hasPreExisting) {
+    privateRec = 'Limited';
+    privateReason = 'Pre-existing conditions may be excluded from private insurance. Check with insurer for moratorium plans.';
+  } else if (wantsPrivate && canAfford) {
+    privateRec = 'Strongly Recommended';
+    privateReason = 'You value private hospital access and can afford it — get a comprehensive medical card.';
+  } else if (wantsPrivate && !canAfford) {
+    privateRec = 'Consider Basic Plan';
+    privateReason = 'Private hospital access important but budget tight — look at basic inpatient plans or co-pay options.';
+  } else {
+    privateRec = 'Recommended';
+    privateReason = 'Even if not your top priority, a basic medical card is wise for emergencies.';
+  }
+
+  // Generate verdict
+  if (perkesoRec.includes('Strong') && privateRec.includes('Strong')) {
+    verdict = 'You need BOTH, Bossku! PERKESO covers work/commuting accidents ($10-30/mo), and private insurance gives you hospital access. Best combo: PERKESO mandatory + basic private medical card.';
+  } else if (perkesoRec.includes('Strong')) {
+    verdict = 'PERKESO is your foundation since you\'re employed/commuting. Add a basic private medical card (RM 100-200/mo) if budget allows for hospital coverage.';
+  } else if (privateRec.includes('Strong')) {
+    verdict = 'Since private hospital access is key and you can afford it, go for a comprehensive medical card. Consider voluntary PERKESO contribution if you want commuting accident cover too.';
+  } else {
+    verdict = 'A basic private medical card (RM 100/mo) is wise for emergencies. PERKESO voluntary contribution (minimal cost) can add commuting accident protection if relevant.';
+  }
+
+  const el = document.getElementById('calcResult');
+  el.classList.remove('hidden');
+  el.className = 'rounded-xl p-5 border transition-all ' + (
+    verdict.includes('BOTH')
+      ? 'bg-[#C4956A]/10 border-[#C4956A]/30'
+      : 'border-[#4F7942]/30 bg-[#4F7942]/5'
+  );
+  el.innerHTML = `
+    <div class="flex items-center gap-2 mb-3">
+      <i data-lucide="lightbulb" class="icon-sm text-[#C4956A]"></i>
+      <h5 class="font-bold text-[#3A2A1A] dark:text-[#f1e8d9] text-sm">Recommendation</h5>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2 mb-3 text-sm">
+      <div class="rounded-lg bg-white/80 dark:bg-[#1e293b]/80 p-3">
+        <span class="font-bold text-[#1E3A5F] dark:text-[#6B9FC4]">PERKESO:</span>
+        <span class="${perkesoRec.includes('Strong') ? 'text-[#4F7942] font-semibold' : 'text-[#8B5A2B] dark:text-[#D2B48C]'}"> ${perkesoRec}</span>
+        <p class="text-xs text-[#8B5A2B]/70 dark:text-[#D2B48C]/70 mt-1">${perkesoReason}</p>
+      </div>
+      <div class="rounded-lg bg-white/80 dark:bg-[#1e293b]/80 p-3">
+        <span class="font-bold text-[#4F7942] dark:text-[#6BAF5A]">Private Insurance:</span>
+        <span class="${privateRec.includes('Strong') ? 'text-[#4F7942] font-semibold' : 'text-[#8B5A2B] dark:text-[#D2B48C]'}"> ${privateRec}</span>
+        <p class="text-xs text-[#8B5A2B]/70 dark:text-[#D2B48C]/70 mt-1">${privateReason}</p>
+      </div>
+    </div>
+    <div class="rounded-lg bg-white/60 dark:bg-[#1e293b]/60 p-3 text-sm text-[#3A2A1A]/80 dark:text-[#f1e8d9]/80">
+      <span class="font-bold">💡 Verdict: </span>${verdict}
+    </div>
+  `;
+  setTimeout(() => lucide.createIcons(), 0);
+}
+
+// ══════════════════════════════════════════════════
+// MODULE 2: GOV vs PRIVATE SECTOR
+// ══════════════════════════════════════════════════
+function selectCharacter(type) {
+  selectedCharacter = type;
+  document.querySelectorAll('.character-card').forEach(el => {
+    el.classList.remove('selected', 'glow-pulse');
+    el.style.borderColor = '';
+  });
+  const charEl = document.getElementById(`char-${type}`);
+  charEl.classList.add('selected');
+  charEl.classList.remove('glow-pulse');
+  const other = type === 'gov' ? 'pvt' : 'gov';
+  document.getElementById(`char-${other}`).style.borderColor = 'rgba(196, 149, 106, 0.1)';
+
+  // Show stats
+  const statsEl = document.getElementById('careerStats');
+  statsEl.classList.remove('hidden');
+
+  const barsEl = document.getElementById('statBars');
+  const stats = careerStatsData[type];
+  barsEl.innerHTML = stats.map((s, i) => {
+    const val = type === 'gov' ? s.gov : s.pvt;
+    const otherVal = type === 'gov' ? s.pvt : s.gov;
+    return `
+      <div class="pop-in" style="animation-delay:${i * 0.08}s">
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-2">
+            <i data-lucide="${s.icon}" class="icon-sm text-[#8B5A2B] dark:text-[#D2B48C]"></i>
+            <span class="text-sm font-medium text-[#3A2A1A] dark:text-[#f1e8d9]">${s.label}</span>
+          </div>
+          <span class="text-sm font-bold ${val > otherVal ? 'text-[#C4956A]' : 'text-[#8B5A2B]/50 dark:text-[#D2B48C]/50'}">${val}/100</span>
+        </div>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill ${type === 'gov' ? 'bg-[#1E3A5F]' : 'bg-[#C4956A]'}"
+               style="--target: ${val}%" id="stat-fill-${i}"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Animate bars after DOM update
+  setTimeout(() => {
+    stats.forEach((s, i) => {
+      const fill = document.getElementById(`stat-fill-${i}`);
+      if (fill) fill.classList.add('animate');
+    });
+  }, 100);
+  setTimeout(() => lucide.createIcons(), 0);
+}
+
+// ══════════════════════════════════════════════════
+// MODULE 3: GOVERNMENT INITIATIVES
+// ══════════════════════════════════════════════════
+function renderInitiatives() {
+  const grid = document.getElementById('initiativesGrid');
+  grid.innerHTML = initiatives.map((init, idx) => {
+    const saved = getVotes(init.name);
+    return `
+      <div class="initiative-card rounded-2xl bg-white dark:bg-[#1e293b] border border-[#C4956A]/10 shadow-sm overflow-hidden">
+        <div class="p-5 border-l-4 ${init.color}">
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="${init.icon}" class="icon-sm text-[#8B5A2B] dark:text-[#D2B48C]"></i>
+            <h4 class="font-bold text-[#3A2A1A] dark:text-[#f1e8d9]">${init.name}</h4>
+          </div>
+          <div class="mb-3">
+            <p class="text-xs font-semibold text-[#4F7942] uppercase tracking-wider mb-1">✅ The Good</p>
+            <p class="text-sm text-[#3A2A1A]/70 dark:text-[#f1e8d9]/70 leading-relaxed">${init.good}</p>
+          </div>
+          <div class="mb-3">
+            <p class="text-xs font-semibold text-[#C4956A] uppercase tracking-wider mb-1">🤔 Could Be Better</p>
+            <p class="text-sm text-[#3A2A1A]/70 dark:text-[#f1e8d9]/70 leading-relaxed">${init.couldBe}</p>
+          </div>
+        </div>
+        <div class="border-t border-[#C4956A]/10 px-5 py-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-[#8B5A2B]/50 dark:text-[#D2B48C]/50">Rakyat Rating</span>
+            <span class="text-xs text-[#8B5A2B]/50 dark:text-[#D2B48C]/50" id="vote-count-${idx}">${saved.votes} votes · ${saved.avg.toFixed(1)} ★</span>
+          </div>
+          <div class="flex items-center gap-1 mt-2 star-vote" data-idx="${idx}">
+            ${[1,2,3,4,5].map(s => `
+              <button class="star-btn ${s <= saved.myVote ? 'text-[#D4A84B]' : 'text-gray-200'}"
+                      data-init="${init.name}" data-star="${s}" onclick="castVote('${init.name}', ${s}, ${idx})">
+                <i data-lucide="star" class="icon-sm ${s <= saved.myVote ? 'fill-[#D4A84B]' : ''}" style="${s <= saved.myVote ? 'fill: #D4A84B;' : ''}"></i>
+              </button>
+            `).join('')}
+            <span class="ml-2 text-xs font-bold text-[#8B5A2B] dark:text-[#D2B48C]" id="init-score-${idx}">${saved.avg.toFixed(1)}</span>
+          </div>
+          <div class="mt-2 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+            <div class="h-full rounded-full bg-gradient-to-r from-[#C4956A] to-[#4F7942]"
+                 style="width: ${(saved.avg / 5) * 100}%" id="init-bar-${idx}"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  setTimeout(() => lucide.createIcons(), 0);
+}
+
+function getVotes(name) {
+  try {
+    const data = JSON.parse(localStorage.getItem('malaysia_compare_votes') || '{}');
+    const init = data[name] || { votes: 0, total: 0, myVote: 0 };
+    return {
+      votes: init.votes,
+      total: init.total,
+      avg: init.votes > 0 ? init.total / init.votes : 0,
+      myVote: init.myVote || 0,
+    };
+  } catch {
+    return { votes: 0, total: 0, avg: 0, myVote: 0 };
+  }
+}
+
+function castVote(name, star, idx) {
+  try {
+    const data = JSON.parse(localStorage.getItem('malaysia_compare_votes') || '{}');
+    const init = data[name] || { votes: 0, total: 0, myVote: 0 };
+
+    // Remove previous vote if exists
+    if (init.myVote > 0) {
+      init.total -= init.myVote;
+      init.votes--;
+    }
+
+    init.myVote = star;
+    init.total += star;
+    init.votes++;
+    data[name] = init;
+    localStorage.setItem('malaysia_compare_votes', JSON.stringify(data));
+
+    // Re-render just this initiative
+    const saved = getVotes(name);
+    document.getElementById(`vote-count-${idx}`).textContent = `${saved.votes} votes · ${saved.avg.toFixed(1)} ★`;
+    document.getElementById(`init-score-${idx}`).textContent = saved.avg.toFixed(1);
+    document.getElementById(`init-bar-${idx}`).style.width = `${(saved.avg / 5) * 100}%`;
+
+    // Update star buttons
+    const container = document.querySelector(`.star-vote[data-idx="${idx}"]`);
+    if (container) {
+      container.querySelectorAll('.star-btn').forEach(btn => {
+        const s = parseInt(btn.dataset.star);
+        const icon = btn.querySelector('i');
+        if (s <= star) {
+          btn.classList.add('text-[#D4A84B]');
+          btn.classList.remove('text-gray-200');
+          icon.classList.add('fill-[#D4A84B]');
+          icon.style.fill = '#D4A84B';
+        } else {
+          btn.classList.remove('text-[#D4A84B]');
+          btn.classList.add('text-gray-200');
+          icon.classList.remove('fill-[#D4A84B]');
+          icon.style.fill = 'none';
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('Vote storage error:', e);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// MODULE 4: FIAT vs BITCOIN
+// ══════════════════════════════════════════════════
+function renderFiatDashboard() {
+  const fiatEl = document.getElementById('fiatDashboard');
+  fiatEl.innerHTML = fiatDashboard.map(d =>
+    `<div class="flex items-center gap-2.5">
+      <i data-lucide="${d.icon}" class="icon-sm shrink-0 text-[#C4956A]"></i>
+      <span><span class="font-medium text-[#8B5A2B] dark:text-[#D2B48C]">${d.label}:</span> ${d.value}</span>
+    </div>`
+  ).join('');
+
+  const btcEl = document.getElementById('btcDashboard');
+  btcEl.innerHTML = btcDashboard.map(d =>
+    `<div class="flex items-center gap-2.5">
+      <i data-lucide="${d.icon}" class="icon-sm shrink-0 text-[#4F7942]"></i>
+      <span><span class="font-medium text-[#4F7942] dark:text-[#6BAF5A]">${d.label}:</span> ${d.value}</span>
+    </div>`
+  ).join('');
+}
+
+function renderFiatCompare() {
+  const tbody = document.getElementById('fiatCompareBody');
+  tbody.innerHTML = fiatCompare.map(r =>
+    `<tr>
+      <td class="font-medium text-[#3A2A1A] dark:text-[#f1e8d9]">${r.dim}</td>
+      <td class="text-[#8B5A2B]/80 dark:text-[#D2B48C]/80">${r.fiat}</td>
+      <td class="text-[#4F7942]/80 dark:text-[#6BAF5A]/80">${r.btc}</td>
+    </tr>`
+  ).join('');
+}
+
+function renderInflationBars() {
+  const container = document.getElementById('inflationBars');
+  const years = [2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034];
+  const max = 25;
+  container.innerHTML = years.map((y, i) => {
+    const fiatPrice = 3.50 * Math.pow(1.03, i);
+    const btcPrice = 3.50 / (100000 * Math.pow(1.15, i));
+    const height = (fiatPrice / max) * 100;
+    return `
+      <div class="flex items-center gap-3 text-xs">
+        <span class="w-8 font-medium text-[#8B5A2B] dark:text-[#D2B48C]">${y}</span>
+        <div class="flex-1 flex items-center gap-1">
+          <div class="h-4 rounded bg-[#C4956A]/60" style="width: ${height * 1.5}%"></div>
+          <span class="text-[#8B5A2B] dark:text-[#D2B48C]">RM ${fiatPrice.toFixed(2)}</span>
+        </div>
+        <div class="flex-1 flex items-center gap-1">
+          <div class="h-4 rounded bg-[#4F7942]/60" style="width: ${Math.min(100, (btcPrice * 500000))}%"></div>
+          <span class="text-[#4F7942]">${btcPrice.toFixed(8)} BTC</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateInflationCalc(year) {
+  document.getElementById('inflationYear').textContent = year;
+  const idx = parseInt(year) - 2024;
+
+  // Nasi lemak fiat: 3.50 compounded at 3% annual inflation
+  const fiatPrice = 3.50 * Math.pow(1.03, idx);
+  // BTC price: start at 100k, grow 15% per year (compounding)
+  const btcUsd = 100000 * Math.pow(1.15, idx);
+  // Nasi lemak in BTC
+  const btcPrice = 3.50 / btcUsd;
+
+  const fiatChange = ((fiatPrice - 3.50) / 3.50) * 100;
+  const btcChange = ((btcUsd - 100000) / 100000) * 100;
+
+  document.getElementById('fiatPrice').textContent = `RM ${fiatPrice.toFixed(2)}`;
+  document.getElementById('fiatChange').textContent = `${fiatChange > 0 ? '+' : ''}${fiatChange.toFixed(1)}% since 2024`;
+  document.getElementById('fiatChange').className = `text-xs mt-1 ${fiatChange > 0 ? 'text-red-500' : 'text-[#4F7942]'}`;
+
+  document.getElementById('btcPrice').textContent = `${btcPrice.toFixed(8)} BTC`;
+  document.getElementById('btcChange').textContent = `${btcChange > 0 ? '+' : ''}${btcChange.toFixed(1)}% since 2024`;
+  document.getElementById('btcChange').className = `text-xs mt-1 ${btcChange > 0 ? 'text-[#4F7942]' : 'text-red-500'}`;
+
+  document.getElementById('btcUsdPrice').textContent = `$${btcUsd.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+  document.getElementById('btcUsdChange').textContent = `${btcChange > 0 ? '+' : ''}${btcChange.toFixed(1)}% since 2024`;
+  document.getElementById('btcUsdChange').className = `text-xs mt-1 ${btcChange > 0 ? 'text-[#4F7942]' : 'text-red-500'}`;
+
+  // Update slider thumb position visual
+  const pct = ((idx) / 10) * 100;
+  document.querySelector('input[type="range"]').style.background =
+    `linear-gradient(90deg, #C4956A ${pct}%, #C4956A40 ${pct}%)`;
+}
+
+// ══════════════════════════════════════════════════
+// DARK MODE
+// ══════════════════════════════════════════════════
+function toggleDarkMode() {
+  const html = document.documentElement;
+  const isDark = html.classList.toggle('dark');
+  localStorage.setItem('malaysia_compare_dark', isDark ? 'true' : 'false');
+  updateModeUI(isDark);
+}
+
+function updateModeUI(isDark) {
+  const icon = document.getElementById('modeIcon');
+  const label = document.getElementById('modeLabel');
+  if (isDark) {
+    icon.textContent = '🌙';
+    label.textContent = 'Malam';
+  } else {
+    icon.textContent = '☀️';
+    label.textContent = 'Siang';
+  }
+}
+
+function loadDarkMode() {
+  const saved = localStorage.getItem('malaysia_compare_dark');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved === 'true' || (saved === null && prefersDark);
+  if (isDark) {
+    document.documentElement.classList.add('dark');
+  }
+  updateModeUI(isDark);
+}
+
+// ══════════════════════════════════════════════════
+// TEH TARIK FAB
+// ══════════════════════════════════════════════════
+let tehTarikOpen = false;
+
+function openTehTarik() {
+  if (tehTarikOpen) return;
+  tehTarikOpen = true;
+
+  const overlay = document.getElementById('tehOverlay');
+  const liquid = document.getElementById('tehLiquid');
+  const stream = document.getElementById('tehStream');
+  const factEl = document.getElementById('tehFact');
+  const factText = document.getElementById('tehFactText');
+
+  // Reset
+  liquid.classList.remove('pour');
+  liquid.style.height = '0';
+  stream.classList.remove('pour');
+  stream.style.height = '0';
+  factEl.classList.remove('show');
+
+  // Pick a random fact
+  factText.textContent = tehFacts[Math.floor(Math.random() * tehFacts.length)];
+
+  // Show overlay
+  overlay.classList.add('show');
+
+  // Animate stream + pour
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      stream.classList.add('pour');
+      stream.style.height = '80px';
+      setTimeout(() => {
+        liquid.classList.add('pour');
+        liquid.style.height = '85%';
+      }, 400);
+      setTimeout(() => {
+        factEl.classList.add('show');
+        lucide.createIcons();
+      }, 1600);
+    });
+  });
+
+  // Hide tooltip
+  document.getElementById('fabTooltip').classList.remove('show');
+}
+
+function closeTehTarik(e) {
+  if (e && e.target !== e.currentTarget && !e.target.closest('.teh-fact button')) return;
+  if (e && e.target.closest('.teh-fact button')) {
+    // "Another one" clicked — re-pour
+    document.getElementById('tehOverlay').classList.remove('show');
+    tehTarikOpen = false;
+    setTimeout(() => openTehTarik(), 300);
+    return;
+  }
+  document.getElementById('tehOverlay').classList.remove('show');
+  tehTarikOpen = false;
+}
+
+// ── Show fab tooltip on first visit ──
+setTimeout(() => {
+  const shown = localStorage.getItem('malaysia_compare_fab_hint');
+  if (!shown) {
+    document.getElementById('fabTooltip').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('fabTooltip').classList.remove('show');
+    }, 4000);
+    localStorage.setItem('malaysia_compare_fab_hint', 'true');
+  }
+}, 2000);
+
+// ══════════════════════════════════════════════════
+// SCROLL REVEAL ANIMATIONS (Intersection Observer)
+// ══════════════════════════════════════════════════
+function setupRevealAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.compare-card, .initiative-card, .character-card, .calc-question').forEach(el => {
+    el.classList.add('reveal');
+    observer.observe(el);
+  });
+}
+
+// Override switchTab to re-trigger reveals
+const origSwitchTab = switchTab;
+switchTab = function(id) {
+  origSwitchTab(id);
+  // After tab switch, observe new elements
+  setTimeout(() => {
+    setupRevealAnimations();
+    // Re-trigger visible check for elements already in view
+    document.querySelectorAll('.tab-content:not(.hidden) .reveal').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight - 60) {
+        el.classList.add('visible');
+      }
+    });
+  }, 100);
+};
+
+// ══════════════════════════════════════════════════
+// KICK OFF
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadDarkMode();
+  init();
+  setTimeout(setupRevealAnimations, 300);
+});
+</script>
+</body>
+</html>
