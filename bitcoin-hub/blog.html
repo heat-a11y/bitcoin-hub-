@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Bitcoin Knowledge Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0a0a1a;
+  --bg2: #0f0f24;
+  --bg3: #151530;
+  --orange: #F7931A;
+  --gold: #FFD700;
+  --green: #00D4AA;
+  --red: #FF6B6B;
+  --purple: #8B5CF6;
+  --blue: #60A5FA;
+  --card: rgba(255,255,255,.03);
+  --card-hover: rgba(255,255,255,.06);
+  --border: rgba(255,255,255,.08);
+  --border-orange: rgba(247,147,26,.2);
+  --text: #fff;
+  --text-dim: rgba(255,255,255,.5);
+  --text-muted: rgba(255,255,255,.35);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --nav-h: 64px;
+}
+html { font-size: 62.5%; scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+input, select { font-family: inherit; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--nav-h);
+  background: rgba(10,10,26,.85);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 24px;
+  height: 100%; display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.6rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--orange), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nav-logo span { font-size: 1.8rem; }
+.nav-links { display: flex; align-items: center; gap: 2px; }
+.nav-links a {
+  padding: 8px 14px; font-size: 1.25rem; font-weight: 500;
+  color: var(--text-dim); border-radius: 8px;
+  transition: all .2s;
+}
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.nav-back {
+  background: linear-gradient(135deg, var(--orange), var(--gold));
+  color: var(--bg) !important; font-weight: 700 !important;
+  padding: 8px 20px !important; border-radius: 50px !important;
+}
+.hero {
+  padding: 100px 24px 40px; text-align: center;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.hero h1 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff 30%, var(--orange) 70%, var(--gold) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.hero p { color: var(--text-dim); max-width: 560px; margin: 0 auto; font-size: 1.5rem; }
+.filters {
+  max-width: 1100px; margin: 24px auto 0; padding: 0 24px;
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+}
+.filters label { font-size: 1.2rem; color: var(--text-dim); font-weight: 600; }
+.filter-select {
+  padding: 10px 16px; border-radius: 12px; border: 1.5px solid var(--border);
+  background: var(--bg3); color: var(--text); font-size: 1.25rem;
+  outline: none; cursor: pointer; min-width: 180px;
+}
+.filter-select:focus { border-color: var(--orange); }
+.search-input {
+  flex: 1; min-width: 200px; padding: 10px 16px; border-radius: 12px;
+  border: 1.5px solid var(--border); background: var(--bg3);
+  color: var(--text); font-size: 1.25rem; outline: none;
+}
+.search-input:focus { border-color: var(--orange); }
+.stats { font-size: 1.2rem; color: var(--text-muted); }
+.blog-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; }
+.blog-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  margin-top: 24px;
+}
+.blog-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; transition: all .3s ease; cursor: pointer;
+}
+.blog-card:hover { transform: translateY(-3px); border-color: var(--border-orange); }
+.blog-card-img {
+  width: 100%; aspect-ratio: 16/10;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; position: relative;
+}
+.blog-card-body { padding: 20px; }
+.blog-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 50px;
+  font-size: 1rem; font-weight: 600; margin-bottom: 8px;
+  background: rgba(247,147,26,.12); color: var(--orange);
+}
+.blog-card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+.blog-card p { font-size: 1.2rem; color: var(--text-dim); line-height: 1.6; }
+.card-clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.article-view {
+  display: none; max-width: 700px; margin: 24px auto 0;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px;
+}
+.article-view.show { display: block; }
+.article-view .back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 20px; border-radius: 50px;
+  border: 1.5px solid var(--border); color: var(--text-dim);
+  font-size: 1.2rem; font-weight: 500; transition: all .2s;
+  margin-bottom: 20px;
+}
+.article-view .back-btn:hover { border-color: var(--orange); color: var(--text); }
+.article-view h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+.article-view .post-body { color: var(--text-dim); line-height: 1.8; font-size: 1.35rem; }
+.article-view .post-body p { margin-bottom: 14px; }
+.article-view .post-body strong { color: var(--text); }
+.empty-state { text-align: center; padding: 60px 24px; color: var(--text-dim); }
+.empty-state .big { font-size: 3rem; margin-bottom: 12px; }
+footer {
+  background: var(--bg2); border-top: 1px solid var(--border);
+  padding: 40px 0; text-align: center;
+}
+footer p { font-size: 1.15rem; color: var(--text-muted); }
+@media (max-width: 900px) {
+  .blog-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .mobile-toggle { display: flex; flex-direction: column; gap: 5px; padding: 8px; cursor: pointer; }
+  .mobile-toggle span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: all .3s; }
+  .nav-links.open { display: flex; flex-direction: column; position: absolute; top: var(--nav-h); left: 0; right: 0; background: rgba(10,10,26,.98); border-bottom: 1px solid var(--border); padding: 12px; gap: 4px; }
+  .nav-links.open a { width: 100%; }
+  .filters { flex-direction: column; }
+  .filter-select, .search-input { width: 100%; }
+  .blog-grid { grid-template-columns: 1fr; }
+  .article-view { padding: 20px; }
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo"><span>₿</span> Bitcoin Hub</a>
+    <div class="mobile-toggle" onclick="this.classList.toggle('active');document.querySelector('.nav-links').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="nav-links">
+      <a href="/">🏠 Home</a>
+      <a href="/#tools">Tools</a>
+      <a href="/#strategies">Strategies</a>
+      <a href="/#glossary">Glossary</a>
+      <a href="/#quiz">Quiz</a>
+      <a href="#" class="nav-back" style="opacity:.7">📝 Blog</a>
+    </div>
+  </div>
+</nav>
+<section class="hero">
+  <h1>📝 Bitcoin &amp; Austrian Economics Blog</h1>
+  <p>50 in-depth articles exploring Bitcoin through the lens of Austrian economics, sound money, and individual sovereignty.</p>
+</section>
+<div class="filters">
+  <label>Filter:</label>
+  <select class="filter-select" id="tagFilter" onchange="applyFilters()">
+    <option value="all">All Topics</option>
+    <option value="Austrian Economics">📖 Austrian Economics</option>
+    <option value="Basics">💡 Basics</option>
+    <option value="Culture">🌍 Culture</option>
+    <option value="History">📜 History</option>
+    <option value="Mining">⚡ Mining</option>
+    <option value="Privacy">🛡️ Privacy</option>
+    <option value="Security">🔒 Security</option>
+    <option value="Strategy">📊 Strategy</option>
+    <option value="Technical">🔧 Technical</option>
+  </select>
+  <input class="search-input" id="searchInput" type="text" placeholder="Search articles..." oninput="applyFilters()">
+  <span class="stats" id="stats">50 articles</span>
+</div>
+<div class="blog-wrap" id="app">
+  <div class="blog-grid" id="blogGrid"></div>
+  <div class="article-view" id="articleView">
+    <button class="back-btn" onclick="hideArticle()">← Back to articles</button>
+    <div id="articleContent"></div>
+  </div>
+</div>
+<footer>
+  <p>© 2026 Bitcoin Knowledge Hub — Stack sats, not shit. ₿</p>
+  <p style="margin-top:8px;font-size:1.1rem;color:var(--text-muted)"><a href="https://hata.io/signup?ref=AF01GJRKAA">Start on Hata</a> · <a href="https://www.luno.com/wallet/rewards/enter_code?code=EKXVFK">Start on Luno</a></p>
+</footer>
+<script>
+const POSTS = [{title:'Bitcoin and the Boom-Bust Cycle',tag:'Austrian Economics',emoji:'📈',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>The Austrian Business Cycle Theory (ABCT), pioneered by Ludwig von Mises and Friedrich Hayek, explains how artificial credit expansion by central banks leads to unsustainable booms followed by inevitable busts. When interest rates are held artificially low, businesses invest in long-term projects that appear profitable only under distorted price signals. This malinvestment creates bubbles in assets like real estate or stocks.</p><p>Bitcoin offers a way out of this cycle. With a fixed supply and no central authority to manipulate interest rates, Bitcoin imposes monetary discipline. It cannot be inflated to mask bad investments. As Hayek argued, a truly free market in money would allow people to choose sound currencies. Bitcoin is that choice in the digital age.</p><p>By adopting Bitcoin as a savings technology, individuals can opt out of the fractional reserve system that drives the boom-bust cycle.</p>`},
+{title:'Menger's Regression Theorem: Why Bitcoin Has Value',tag:'Austrian Economics',emoji:'📜',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Carl Menger, the founder of the Austrian School, explained that money emerges not by government decree but through a market process. People begin to accept a commodity because it is highly saleable (liquid). Over time, the most saleable good becomes the commonly accepted medium of exchange.</p><p>Menger's regression theorem states that the purchasing power of money today is based on its purchasing power yesterday, tracing back to the point where it first gained value as a commodity. For Bitcoin, that initial value came from its utility as a digital token for transferring value among early adopters.</p><p>Bitcoin satisfies Menger's criteria for sound money: durability, portability, divisibility, scarcity, and a proved market origin. It emerged from voluntary exchange on the internet.</p>`},
+{title:'Mises and Socialist Calculation',tag:'Austrian Economics',emoji:'🧮',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Ludwig von Mises demonstrated that without market prices for capital goods, rational economic calculation is impossible under socialism. Central planners lack the price signals needed to allocate resources efficiently. This applies directly to central banking: interest rate manipulation distorts capital allocation.</p><p>Bitcoin provides a counterpoint. Its price is determined by millions of participants on free markets. There is no central authority setting its price. Bitcoin is a tool for economic calculation in the Austrian tradition, revealing the true market valuation of a decentralised monetary asset.</p>`},
+{title:'Hayek's Dream: Denationalised Money',tag:'Austrian Economics',emoji:'🏛️',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Friedrich Hayek proposed the denationalisation of money, arguing that governments should not have a monopoly on currency issuance. Competing private currencies would force issuers to maintain stable value or lose customers.</p><p>Bitcoin is the first practical implementation of Hayek's ideas. It is a global, decentralised currency not issued by any government. Anyone can audit its code and supply. By holding Bitcoin, you choose a money that cannot be inflated or confiscated.</p>`},
+{title:'The Cantillon Effect',tag:'Austrian Economics',emoji:'💰',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>The Cantillon effect describes how new money benefits those who receive it first. Banks and insiders spend before prices rise, gaining at the expense of latecomers. This explains growing wealth inequality in fiat systems.</p><p>Bitcoin eliminates the Cantillon effect. Nobody can create new Bitcoin out of thin air. Every coin is mined through proof-of-work, and issuance is predetermined. This makes Bitcoin the fairest money ever created.</p>`},
+{title:'Why Time Preference Matters',tag:'Basics',emoji:'⏳',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>Time preference is how much you value present versus future consumption. High time preference = spending now; low = saving for later. Austrian economists see low time preference as essential for wealth building.</p><p>Bitcoin encourages low time preference. Its fixed supply rewards savers. Unlike fiat that loses value, Bitcoin gains purchasing power over time. Holding Bitcoin becomes a virtuous cycle of discipline and growing wealth.</p>`},
+{title:'What Makes a Money Sound?',tag:'Basics',emoji:'💎',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>Sound money has key properties: durability, portability, divisibility, uniformity, limited supply, and acceptability. Gold met most criteria except digital usability. Bitcoin improves on gold in every way.</p><p>Bitcoin is perfectly divisible, instantly portable globally, and its supply is capped at 21 million. No government can inflate it. Bitcoin is the soundest money ever created.</p>`},
+{title:'Bitcoin: Digital Gold of the 21st Century',tag:'Basics',emoji:'🥇',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>Gold has been a store of value for millennia, but it's heavy, hard to verify, and costly to store. Bitcoin solves these problems. It is digital gold — scarce, portable, verifiable, divisible.</p><p>Bitcoin's mining process mirrors gold mining: both require real energy expenditure. Bitcoin's monetary policy is written in code and enforced by thousands of nodes globally.</p>`},
+{title:'Don't Be Fooled by Inflation',tag:'Basics',emoji:'📉',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>Inflation is the expansion of the money supply that causes prices to rise. Central banks print money, each unit loses purchasing power. This hidden tax erodes your savings silently.</p><p>Bitcoin offers an escape. Its supply is fixed and transparent. No central bank can print bitcoins. Saving in Bitcoin preserves value with strict monetary rules.</p>`},
+{title:'Why 21 Million? The Economics of Fixed Supply',tag:'Austrian Economics',emoji:'🔒',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>The 21 million cap is Bitcoin's most important feature. Absolute scarcity is revolutionary in a world where central banks print at will. Austrian economists argue sound money must have limited supply.</p><p>The cap creates predictability. Bitcoin's issuance schedule is known to every participant. It is the only asset with mathematically guaranteed scarcity.</p>`},
+{title:'Bitcoin Mining: Energy Well Spent',tag:'Mining',emoji:'⚡',bg:'linear-gradient(135deg,#FFD700,#F7931A)',content:`<p>Bitcoin mining transforms electricity into a decentralised, secure monetary network. Miners seek the cheapest electricity, often using renewable or stranded energy sources.</p><p>The energy consumed is the cost of maintaining sound money — far lower than the energy wasted by the fiat system's bureaucracy. Bitcoin costs real resources to produce, giving it an objective value anchor.</p>`},
+{title:'Not Your Keys, Not Your Coins',tag:'Security',emoji:'🔑',bg:'linear-gradient(135deg,#FF6B6B,#F7931A)',content:`<p>When you leave Bitcoin on an exchange, you don't control the private keys. The exchange truly owns it. Self-custody means holding your own keys using a hardware wallet.</p><p>For Malaysians, start small on exchanges like Luno or Hata, then move to self-custody. Protecting your keys is protecting your wealth.</p>`},
+{title:'UTXOs: Building Blocks of Bitcoin',tag:'Technical',emoji:'🔗',bg:'linear-gradient(135deg,#00D4AA,#60A5FA)',content:`<p>Unspent Transaction Outputs (UTXOs) are the fundamental units of Bitcoin. Like digital coins, you receive UTXOs and spend them, creating new ones as change. This model enables auditability.</p><p>Understanding UTXOs helps manage fees and privacy. Consolidating small UTXOs during low-fee periods is good practice.</p>`},
+{title:'Lightning Network: Everyday Bitcoin',tag:'Technical',emoji:'⚡',bg:'linear-gradient(135deg,#00D4AA,#60A5FA)',content:`<p>The Lightning Network enables instant, low-cost Bitcoin transactions through payment channels. It makes Bitcoin usable for coffee purchases and micro-transactions.</p><p>LN removes barriers to using Bitcoin in daily commerce while preserving decentralisation. For Malaysians, apps like Phoenix allow instant Bitcoin payments.</p>`},
+{title:'Dollar Cost Averaging: Stack Sats Smartly',tag:'Strategy',emoji:'📊',bg:'linear-gradient(135deg,#F7931A,#00D4AA)',content:`<p>DCA means buying a fixed amount of Bitcoin at regular intervals, regardless of price. This smooths volatility and removes emotional decision-making.</p><p>Set up recurring buys on Luno or Hata. You accumulate at a solid average over time. DCA converts depreciating fiat into digital gold, one satoshi at a time.</p>`},
+{title:'Cold Storage: Keep Your Bitcoin Safe',tag:'Security',emoji:'🧊',bg:'linear-gradient(135deg,#FF6B6B,#F7931A)',content:`<p>Cold storage means keeping Bitcoin offline using hardware wallets like Ledger or Trezor. Private keys never touch an internet-connected device.</p><p>Keep your recovery seed phrase safe — write it on paper, stamp it on metal. Cold storage makes your Bitcoin immune to hacks and theft.</p>`},
+{title:'The Halving: Scarcity Every Four Years',tag:'Mining',emoji:'✂️',bg:'linear-gradient(135deg,#FFD700,#F7931A)',content:`<p>The Bitcoin halving cuts block rewards by half every four years. This is the engine of Bitcoin's disinflationary supply — fewer new bitcoins issued over time.</p><p>The halving fixes supply growth in advance, preventing central authority manipulation. Each halving reinforces Bitcoin's status as the hardest money.</p>`},
+{title:'Problem with Fractional Reserve Banking',tag:'Austrian Economics',emoji:'🏦',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Fractional reserve banking allows banks to lend more than they hold, creating fragility. Bank runs occur when too many depositors demand money back simultaneously.</p><p>Bitcoin has no fractional reserve. Every satoshi is fully backed by proof-of-work. You are not exposed to counterparty risk when holding Bitcoin in your own wallet.</p>`},
+{title:'Why Central Banks Are the Problem',tag:'Austrian Economics',emoji:'🏛️',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Central banks cause the cycles they claim to manage. Manipulating interest rates and expanding money supply distorts markets and creates bubbles.</p><p>Bitcoin rejects central banking entirely. No central bank, no lender of last resort, no monetary policy committee. Bitcoin operates solely by market forces.</p>`},
+{title:'Bitcoin as a Capital Good',tag:'Austrian Economics',emoji:'🏗️',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Capital goods enable future consumption. Bitcoin is a digital savings technology that preserves value over time, allowing future investment.</p><p>Bitcoin serves as infrastructure for a new financial system. Treating Bitcoin as capital means seeing it as a tool for building generational wealth.</p>`},
+{title:'Savings vs Consumption: The Austrian Way',tag:'Basics',emoji:'💸',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>Saving funds investment and drives economic growth. Fiat systems penalise saving through inflation. Bitcoin rewards saving with appreciating purchasing power.</p><p>Automate a percentage of income into Bitcoin. Over time, you'll develop habits that transform your financial life.</p>`},
+{title:'Human Action and Bitcoin',tag:'Austrian Economics',emoji:'🧠',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Mises's Human Action laid the foundation for praxeology. Every Bitcoin transaction is purposeful human action. Bitcoin's price emerges from millions of subjective valuations.</p><p>Bitcoin demonstrates spontaneous order — emerging from voluntary interaction, not central design. The market determined Bitcoin has value.</p>`},
+{title:'Private Keys: Your Financial Sovereignty',tag:'Security',emoji:'🔐',bg:'linear-gradient(135deg,#FF6B6B,#F7931A)',content:`<p>Your private key is ultimate ownership. Whoever holds it controls the coins. No third party needed to enforce title — it's cryptographic.</p><p>Losing your key means losing your Bitcoin forever. This forces responsibility. Use hardware wallets and never share your seed phrase.</p>`},
+{title:'Bitcoin and Malaysia',tag:'Culture',emoji:'🇲🇾',bg:'linear-gradient(135deg,#8B5CF6,#FF6B6B)',content:`<p>Malaysia has a unique position in Bitcoin adoption. Young, tech-savvy population. Exchanges like Luno and Hata make buying easy.</p><p>Bitcoin offers Malaysians a way to save in a currency not manipulated by political forces. Accessible with just a smartphone.</p>`},
+{title:'Why Austrian Economics Explains Bitcoin',tag:'Austrian Economics',emoji:'📖',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>From Menger's theory of money to Hayek's denationalisation, Austrian thought predicted the need for decentralised, market-based money. Bitcoin realises that vision.</p><p>Bitcoin satisfies all sound money properties: scarcity, durability, divisibility, verifiability. Austrian economists champion Bitcoin because it aligns with their theories.</p>`},
+{title:'Praxeology vs Empiricism',tag:'Austrian Economics',emoji:'🧠',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Austrian economics starts from the axiom: humans act purposefully. Unlike mainstream economics that imitates natural sciences, you cannot run controlled experiments on an economy.</p><p>Bitcoin is a product of voluntary human action. Austrian methodology helps see it as monetary evolution, not speculation.</p>`},
+{title:'Value is Subjective',tag:'Basics',emoji:'💡',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>A good has no intrinsic value; its value comes from individual preference. Bitcoin is the ultimate example of subjective value. Its price is determined by millions of subjective valuations.</p>`},
+{title:'Time Preference is Key to Wealth',tag:'Basics',emoji:'⏳',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>Low time preference means saving for later. Bitcoin encourages this by rewarding savers. Wealth is built not by consuming today, but by investing in the future.</p>`},
+{title:'Structure of Production',tag:'Austrian Economics',emoji:'🏭',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Malinvestment occurs when artificially low interest rates distort the structure of production. Bitcoin's fixed supply removes this monetary distortion.</p>`},
+{title:'ASICs as Capital Goods',tag:'Mining',emoji:'⚒️',bg:'linear-gradient(135deg,#FFD700,#F7931A)',content:`<p>ASIC miners are specialised capital goods. Heterogeneous and not interchangeable. Difficulty adjustment forces market re-evaluation of capital productivity.</p>`},
+{title:'Malinvestment: How Booms Destroy Wealth',tag:'Austrian Economics',emoji:'💥',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Cheap credit makes long-term projects appear profitable. The inevitable bust follows. Bitcoin provides an antidote: a non-inflatable store of value.</p>`},
+{title:'The Cantillon Effect in Crypto',tag:'Basics',emoji:'🔍',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>New money benefits first recipients. Bitcoin's transparent issuance is the most fair — no one gets newly minted coins before others.</p>`},
+{title:'The Ultimate Savings Technology',tag:'Strategy',emoji:'🏦',bg:'linear-gradient(135deg,#F7931A,#00D4AA)',content:`<p>Saving in Bitcoin protects from inflation. Supply capped at 21 million. Start on <a href='https://www.luno.com'>Luno</a> or <a href='https://hata.io'>Hata</a>.</p>`},
+{title:'The Bitcoin Standard',tag:'Strategy',emoji:'📈',bg:'linear-gradient(135deg,#F7931A,#00D4AA)',content:`<p>Bitcoin fulfills all sound money properties. It's a monetary evolution, not speculation. For Malaysians, it preserves wealth against ringgit devaluation.</p>`},
+{title:'Inflation is a Hidden Tax',tag:'Basics',emoji:'💸',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>Central bank money printing reduces your savings' purchasing power. Bitcoin's capped issuance means no entity can devalue your holdings.</p>`},
+{title:'Gresham's Law',tag:'History',emoji:'🔄',bg:'linear-gradient(135deg,#60A5FA,#8B5CF6)',content:`<p>Bad money drives out good. Fiat circulates, Bitcoin is saved. Over time, Bitcoin will become the preferred medium of exchange.</p>`},
+{title:'Broken Window Fallacy',tag:'Austrian Economics',emoji:'🪟',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Stimulus creates visible activity but destroys unseen productive capacity. Bitcoin's fixed supply means no emergency printing — growth based on real savings.</p>`},
+{title:'Property Rights by Mathematics',tag:'Security',emoji:'🔒',bg:'linear-gradient(135deg,#FF6B6B,#F7931A)',content:`<p>Bitcoin is the first asset nobody can take without your keys. Property rights enforced by cryptography, not courts.</p>`},
+{title:'Non-Violent Conflict Resolution',tag:'Culture',emoji:'⚖️',bg:'linear-gradient(135deg,#8B5CF6,#FF6B6B)',content:`<p>Bitcoin resolves disputes through consensus rules enforced by the network. No central authority, no judge to corrupt.</p>`},
+{title:'The Seen and Unseen',tag:'Austrian Economics',emoji:'👁️',bg:'linear-gradient(135deg,#8B5CF6,#60A5FA)',content:`<p>Monetary policy has invisible consequences. Bitcoin's transparent issuance makes the unseen seen, restoring honesty to money.</p>`},
+{title:'Privacy is an Economic Good',tag:'Privacy',emoji:'🛡️',bg:'linear-gradient(135deg,#FF6B6B,#8B5CF6)',content:`<p>Privacy lets you maintain control. Bitcoin offers pseudonymity — transactions not linked to identities unless you choose.</p>`},
+{title:'Nostr: Decentralized Communication',tag:'Technical',emoji:'💬',bg:'linear-gradient(135deg,#00D4AA,#60A5FA)',content:`<p>Nostr enables censorship-resistant social networking. Posts signed with keys, broadcast to relays. Complements Bitcoin's decentralised money.</p>`},
+{title:'Proof-of-Work: Cost as Security',tag:'Mining',emoji:'⚡',bg:'linear-gradient(135deg,#FFD700,#F7931A)',content:`<p>PoW transforms electricity into digital security. Rewriting history would cost more energy than all honest miners combined.</p>`},
+{title:'Difficulty Adjustment: Invisible Hand',tag:'Mining',emoji:'⚙️',bg:'linear-gradient(135deg,#FFD700,#F7931A)',content:`<p>Bitcoin's difficulty adjusts every 2016 blocks. Coordinates global miners without central planning. When price falls, unprofitable miners exit naturally.</p>`},
+{title:'Ordinal Theory: Digital Artifacts',tag:'Technical',emoji:'🖼️',bg:'linear-gradient(135deg,#00D4AA,#60A5FA)',content:`<p>Every satoshi can be inscribed with data, creating permanent digital artifacts on Bitcoin. Unique and indestructible.</p>`},
+{title:'Runes Protocol: Bitcoin Tokenization',tag:'Technical',emoji:'🔗',bg:'linear-gradient(135deg,#00D4AA,#60A5FA)',content:`<p>Runes enables fungible tokens on Bitcoin's base layer using UTXOs. Tokens benefit from Bitcoin's security.</p>`},
+{title:'Immaculate Conception',tag:'History',emoji:'🌟',bg:'linear-gradient(135deg,#60A5FA,#8B5CF6)',content:`<p>Satoshi Nakamoto disappeared after creating Bitcoin. No central figure means true decentralisation. Spontaneous order from human action.</p>`},
+{title:'The Block Size War',tag:'History',emoji:'⚔️',bg:'linear-gradient(135deg,#60A5FA,#8B5CF6)',content:`<p>The market resolved Bitcoin's governance crisis. Big blockers forked; BTC retained value. Decentralisation matters more than throughput.</p>`},
+{title:'Why 21 Million Matters: The Math',tag:'Basics',emoji:'🔢',bg:'linear-gradient(135deg,#F7931A,#FFD700)',content:`<p>Geometric series produces the 21 million cap. No government can print it. Mathematical certainty is Bitcoin's foundation.</p>`},
+{title:'How to Start Saving Bitcoin in Malaysia',tag:'Strategy',emoji:'🇲🇾',bg:'linear-gradient(135deg,#F7931A,#00D4AA)',content:`<p>Start with RM10 on <a href='https://www.luno.com'>Luno</a> or <a href='https://hata.io'>Hata</a>. Use DCA — buy weekly regardless of price. For larger holdings, use a hardware wallet. Never leave significant amounts on exchanges.</p>`}
+];
+const TAG_EMOJI = {"Austrian Economics": "\ud83d\udcd6", "Basics": "\ud83d\udca1", "Technical": "\ud83d\udd27", "Privacy": "\ud83d\udee1\ufe0f", "Strategy": "\ud83d\udcca", "History": "\ud83d\udcdc", "Mining": "\u26a1", "Culture": "\ud83c\udf0d", "Security": "\ud83d\udd12"};
+
+function renderGrid(posts) {
+  const grid = document.getElementById('blogGrid');
+  if (posts.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="big">🔍</div><p>No articles match your search. Try a different filter!</p></div>';
+    return;
+  }
+  const colors = ['#F7931A','#8B5CF6','#00D4AA','#FF6B6B','#60A5FA','#FFD700','#FF69B4','#00CED1'];
+  let html = '';
+  posts.forEach((p, i) => {
+    const c = colors[i % colors.length];
+    const plain = p.content.replace(/<[^>]*>/g, '').substring(0, 130);
+    const idx = POSTS.indexOf(p);
+    html += '<div class="blog-card" onclick="showArticle(' + idx + ')">'
+      + '<div class="blog-card-img" style="background:linear-gradient(135deg,' + c + '22,' + c + '44)">' + p.emoji + '</div>'
+      + '<div class="blog-card-body">'
+      + '<span class="blog-tag">' + (TAG_EMOJI[p.tag] || '📌') + ' ' + p.tag + '</span>'
+      + '<h3>' + p.title + '</h3>'
+      + '<p class="card-clamp">' + plain + '…</p>'
+      + '</div></div>';
+  });
+  grid.innerHTML = html;
+}
+
+function applyFilters() {
+  const tag = document.getElementById('tagFilter').value;
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  let filtered = POSTS;
+  if (tag !== 'all') filtered = filtered.filter(p => p.tag === tag);
+  if (query) filtered = filtered.filter(p =>
+    p.title.toLowerCase().includes(query) ||
+    p.content.toLowerCase().includes(query) ||
+    p.tag.toLowerCase().includes(query)
+  );
+  renderGrid(filtered);
+  document.getElementById('stats').textContent = filtered.length + ' article' + (filtered.length !== 1 ? 's' : '');
+}
+
+let currentIdx = -1;
+
+function showArticle(idx) {
+  currentIdx = idx;
+  document.getElementById('blogGrid').style.display = 'none';
+  const view = document.getElementById('articleView');
+  view.classList.add('show');
+  const p = POSTS[idx];
+  document.getElementById('articleContent').innerHTML =
+    '<span class="blog-tag">' + (TAG_EMOJI[p.tag] || '📌') + ' ' + p.tag + '</span>'
+    + '<h2>' + p.emoji + ' ' + p.title + '</h2>'
+    + '<div class="post-body">' + p.content + '</div>';
+  window.scrollTo({ top: view.offsetTop - 80, behavior: 'smooth' });
+}
+
+function hideArticle() {
+  document.getElementById('articleView').classList.remove('show');
+  document.getElementById('blogGrid').style.display = 'grid';
+  if (currentIdx >= 0) {
+    const cards = document.querySelectorAll('.blog-card');
+    if (cards[currentIdx]) cards[currentIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+renderGrid(POSTS);
+</script>
+</body>
+</html>
